@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation";
+  import MDInput from "$lib/components/MDInput.svelte";
   import Modal from "$lib/components/Modal.svelte";
   import type { PageProps } from "./$types";
 
@@ -12,6 +13,7 @@
   let noteModalState: {
     isOpen: boolean;
     mode: "create" | "update";
+    isPreview: boolean;
     fields: {
       id: string;
       name: string;
@@ -20,6 +22,7 @@
   } = $state({
     isOpen: false,
     mode: "create",
+    isPreview: false,
     fields: {
       id: "",
       name: "",
@@ -46,6 +49,7 @@
 
   function openCreateNoteModal() {
     noteModalState.mode = "create";
+    noteModalState.isPreview = false;
     noteModalState.fields.id = "";
     noteModalState.fields.name = "";
     noteModalState.fields.content = "";
@@ -54,6 +58,7 @@
 
   function openUpdateNoteModal(note: Note) {
     noteModalState.mode = "update";
+    noteModalState.isPreview = true;
     noteModalState.fields.id = note.id;
     noteModalState.fields.name = note.name;
     noteModalState.fields.content = note.content;
@@ -124,13 +129,14 @@
       />
     </div>
     <div class="flex w-full flex-col gap-2">
-      <label for="content" class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Content</label>
-      <textarea
+      <label for="content" class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 flex justify-between"><span>Content</span><input type="checkbox" bind:checked={noteModalState.isPreview}/></label>
+      <MDInput
+        isPreview={noteModalState.isPreview}
         bind:value={noteModalState.fields.content}
         name="content"
         placeholder="Collect highlights, meeting notes, or brainstorms..."
-        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
-      ></textarea>
+        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-slate-800/70 bg-slate-950 p-4 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none {noteModalState.isPreview ? 'overflow-y-scroll' : '' }"
+      ></MDInput>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3">
       {#if noteModalState.mode == "update"}
