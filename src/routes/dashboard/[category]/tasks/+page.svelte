@@ -97,7 +97,7 @@
     taskModalState.isPreview = false;
     taskModalState.fields.id = "";
     taskModalState.fields.name = "";
-    taskModalState.fields.due = null;
+    taskModalState.fields.due = new Date();
     taskModalState.fields.status = false;
     taskModalState.fields.content = "";
     taskModalState.isOpen = true;
