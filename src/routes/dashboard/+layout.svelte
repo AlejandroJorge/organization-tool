@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import Modal from "$lib/components/Modal.svelte";
+  import { useToast } from "$lib/components/toast-context";
+  import type { SubmitFunction } from "@sveltejs/kit";
   import type { LayoutProps } from "./$types";
 
   let { children, data, params }: LayoutProps = $props();
@@ -10,6 +13,27 @@
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
+  const toast = useToast();
+
+  const handleFormResult: SubmitFunction = () => {
+    return async ({ result, update }) => {
+      if (result.type === "success") {
+        const message =
+          (result.data as { message?: string } | null)?.message ??
+          "Action completed";
+        toast.success(message);
+      } else if (result.type === "failure") {
+        const message =
+          (result.data as { message?: string } | null)?.message ??
+          "Something went wrong";
+        toast.error(message);
+      } else if (result.type === "error") {
+        toast.error("Unexpected error. Please try again.");
+      }
+
+      await update();
+    };
+  };
 </script>
 
 <div class="min-h-screen bg-slate-950 text-slate-100">
@@ -100,6 +124,7 @@
         class="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4"
         action="/dashboard?/createCategory"
         method="POST"
+        use:enhance={handleFormResult}
       >
         <label
           for="categoryName"
@@ -165,6 +190,7 @@
     action="/dashboard?/deleteCategory"
     method="POST"
     class="flex flex-col gap-6"
+    use:enhance={handleFormResult}
   >
     <input hidden type="text" name="id" value={deleteCategoryId} />
     <div>
