@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ToastType } from "./toast-context";
+  import type { ToastType } from "$lib/components/toast-store";
 
   let { message = "", type = "success" }: { message?: string; type?: ToastType } = $props();
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import Modal from "$lib/components/Modal.svelte";
-  import { useToast } from "$lib/components/toast-context";
+  import { toast } from "$lib/components/toast-store";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { LayoutProps } from "./$types";
 
@@ -13,8 +13,6 @@
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
-  const toast = useToast();
-
   const handleFormResult: SubmitFunction = () => {
     return async ({ result, update }) => {
       if (result.type === "success") {
