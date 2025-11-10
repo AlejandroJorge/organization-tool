@@ -5,6 +5,7 @@
   let { children, data, params }: LayoutProps = $props();
   const { categories } = data;
   let activeCategory = $derived(params.category);
+  let isMobileSidebarOpen = $state(false);
 
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
@@ -13,9 +14,34 @@
 
 <div class="min-h-screen bg-slate-950 text-slate-100">
   <div class="flex min-h-screen">
+    <div
+      class={`fixed inset-0 z-30 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        isMobileSidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+      }`}
+      aria-hidden={!isMobileSidebarOpen}
+      role="presentation"
+      onclick={() => {
+        isMobileSidebarOpen = false;
+      }}
+    ></div>
+
     <aside
-      class="hidden w-72 flex-col border-r border-slate-800/70 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950/40 p-6 lg:flex"
+      id="dashboard-sidebar"
+      class={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800/70 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950/40 p-6 transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
+        isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+      aria-label="Category navigation"
     >
+      <button
+        class="mb-4 flex h-10 w-10 items-center justify-center self-end rounded-xl border border-slate-800/60 text-lg text-slate-400 transition hover:border-slate-600 hover:text-white lg:hidden"
+        type="button"
+        aria-label="Close sidebar"
+        onclick={() => {
+          isMobileSidebarOpen = false;
+        }}
+      >
+        ×
+      </button>
       <div class="mb-8">
         <p
           class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500"
@@ -38,17 +64,23 @@
         {:else}
           {#each categories as category}
             <div
-              class={`group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-slate-800/60 ${
+              class={`group flex items-center justify-between rounded-xl text-sm font-medium transition hover:bg-slate-800/60 ${
                 activeCategory === category.name
                   ? "bg-slate-800/70 text-white"
                   : "text-slate-300"
               }`}
             >
-              <a class="flex-1" href={`/dashboard/${category.name}`}>
+              <a
+                class="flex-1 px-4 py-3 "
+                href={`/dashboard/${category.name}`}
+                onclick={() => {
+                  isMobileSidebarOpen = false;
+                }}
+              >
                 <span class="truncate">{category.name}</span>
               </a>
               <button
-                class="ml-2 hidden rounded-full border border-slate-700/60 px-2 text-xs text-slate-400 transition group-hover:block hover:border-rose-500 hover:text-rose-300"
+                class="mr-2 hidden rounded-full border border-slate-700/60 px-2 text-xs text-slate-400 transition group-hover:block hover:border-rose-500 hover:text-rose-300"
                 type="button"
                 onclick={() => {
                   deleteCategoryId = category.id;
@@ -95,6 +127,29 @@
 
     <main class="flex-1">
       <div class="flex flex-col gap-6 p-6 lg:p-10">
+        <button
+          class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:text-white lg:hidden"
+          type="button"
+          aria-controls="dashboard-sidebar"
+          aria-expanded={isMobileSidebarOpen}
+          onclick={() => {
+            isMobileSidebarOpen = true;
+          }}
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          Open sidebar
+        </button>
         <div
           class="rounded-3xl border border-slate-800/60 bg-slate-900/70 p-6 shadow-2xl shadow-black/40"
         >
