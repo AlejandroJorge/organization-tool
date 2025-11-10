@@ -244,17 +244,6 @@
       </h3>
     </div>
     <div class="grid gap-4 md:grid-cols-[auto,1fr]">
-      <label
-        class="flex items-center gap-3 rounded-2xl border border-slate-800/70 px-4 py-3 text-sm font-medium text-slate-200"
-      >
-        <input
-          bind:checked={taskModalState.fields.status}
-          class="size-5 rounded border-slate-700/70 bg-slate-900 accent-indigo-500"
-          name="status"
-          type="checkbox"
-        />
-        Mark as complete
-      </label>
       <div class="flex flex-col gap-2">
         <label
           for="name"
