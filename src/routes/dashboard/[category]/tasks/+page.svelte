@@ -117,7 +117,7 @@
     <button
       onclick={openCreateTaskModal}
       type="button"
-      class="rounded-2xl bg-gradient-to-r from-indigo-500 to-sky-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:opacity-90"
+      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
     >
       Add Task
     </button>
@@ -125,7 +125,7 @@
 
   <form
     method="GET"
-    class="grid gap-4 rounded-3xl border border-slate-800/70 bg-slate-950/40 p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)]"
+    class="grid gap-4 rounded-3xl border border-slate-800/70 bg-slate-900 p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)]"
   >
     <label class="flex flex-col gap-2">
       <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Search</span>
@@ -135,13 +135,13 @@
         bind:value={filters.searchQuery}
         oninput={reloadData}
         placeholder="Find tasks"
-        class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        class="rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-slate-500 focus:outline-none"
       />
     </label>
 
     <label class="flex flex-col gap-2">
       <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Status</span>
-      <span class="flex items-center justify-between rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2 text-sm font-semibold text-slate-200">
+      <span class="flex items-center justify-between rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-200">
         Only open tasks
         <span class="relative inline-flex items-center">
           <input
@@ -151,7 +151,7 @@
             onchange={reloadData}
             class="peer sr-only"
           />
-          <span class="block h-6 w-11 rounded-full bg-slate-700 transition peer-checked:bg-indigo-500"></span>
+          <span class="block h-6 w-11 rounded-full bg-slate-700 transition peer-checked:bg-slate-100"></span>
           <span class="absolute left-1 top-1 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></span>
         </span>
       </span>
@@ -163,7 +163,7 @@
         name="interval"
         bind:value={filters.intervalValue}
         onchange={reloadData}
-        class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2.5 text-sm text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        class="rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 focus:border-slate-500 focus:outline-none"
       >
         <option value="">Any time</option>
         {#each intervalOptions as option}
@@ -183,7 +183,7 @@
     {:else}
       {#each tasks as task}
         <li
-          class="flex items-start gap-4 rounded-2xl border border-slate-800/70 bg-slate-950/40 px-4 py-4"
+          class="flex items-start gap-4 rounded-2xl border border-slate-800/70 bg-slate-900 px-4 py-4"
         >
           <div class="mt-1">
             <CheckToggle
@@ -199,7 +199,7 @@
             <div class="flex items-start justify-between gap-4">
               <div>
                 <p
-                  class={`text-base font-semibold text-white ${task.status ? "line-through text-slate-500" : ""}`}
+                  class={`text-base font-semibold text-slate-100 ${task.status ? "line-through text-slate-500" : ""}`}
                 >
                   {task.name}
                 </p>
@@ -215,7 +215,7 @@
                   <p>{dayjs(task.due).format("YYYY")}</p>
                 {/if}
                 <span
-                  class={`mt-2 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${task.status ? "bg-emerald-500/10 text-emerald-300" : "bg-slate-800 text-slate-300"}`}
+                  class={`mt-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${task.status ? "border-emerald-400/60 text-emerald-300" : "border-slate-700 text-slate-300"}`}
                 >
                   {task.status ? "Done" : "Pending"}
                 </span>
@@ -267,7 +267,7 @@
           type="text"
           required
           placeholder="Ship onboarding flow"
-          class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          class="rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
         />
       </div>
     </div>
@@ -290,7 +290,7 @@
         }
         name="due"
         type="date"
-        class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-3 text-sm text-white focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        class="rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white focus:border-slate-500 focus:outline-none"
       />
     </div>
     <div class="flex w-full flex-col gap-2">
@@ -303,14 +303,14 @@
         bind:value={taskModalState.fields.content}
         name="content"
         placeholder="Add context, links, or checklists..."
-        class="min-h-[20vh] h-[30vh] max-h-[40vh] rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        class="min-h-[20vh] h-[30vh] max-h-[40vh] rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
       ></textarea>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3">
       {#if taskModalState.mode == "update"}
         <button
           type="button"
-          class="text-sm font-semibold text-rose-300 hover:text-rose-200"
+          class="text-sm font-semibold text-rose-300 hover:text-rose-100"
           onclick={() => deleteTask(taskModalState.fields.id)}
         >
           Delete task
@@ -326,7 +326,7 @@
         </button>
         <button
           type="submit"
-          class="rounded-2xl bg-gradient-to-r from-indigo-500 to-sky-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-900/40"
+          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
         >
           {taskModalState.mode === "create" ? "Create" : "Save"}
         </button>

@@ -7,13 +7,7 @@
   const { notes } = $derived(data);
   type Note = (typeof data.notes)[number];
 
-  const noteAccentPalette = [
-    "from-indigo-500/20 via-slate-900/80 to-slate-950/60",
-    "from-rose-500/20 via-slate-900/80 to-slate-950/60",
-    "from-emerald-500/20 via-slate-900/80 to-slate-950/60",
-    "from-amber-500/20 via-slate-900/80 to-slate-950/60",
-    "from-sky-500/20 via-slate-900/80 to-slate-950/60",
-  ] as const;
+  const noteAccentPalette = ["bg-slate-900", "bg-slate-900"] as const;
 
   let noteModalState: {
     isOpen: boolean;
@@ -76,7 +70,7 @@
     <button
       onclick={openCreateNoteModal}
       type="button"
-      class="rounded-2xl border border-slate-700/70 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500"
+      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
     >
       Add Note
     </button>
@@ -91,7 +85,7 @@
       {#each notes as note, index}
         <button
           type="button"
-          class={`w-full min-h-24  break-inside-avoid rounded-2xl border border-slate-800/70 bg-gradient-to-b ${noteAccentPalette[index % noteAccentPalette.length]} p-4 text-left shadow-inner shadow-black/20 transition hover:-translate-y-1 hover:border-slate-600`}
+          class={`w-full min-h-24 break-inside-avoid rounded-2xl border border-slate-800/70 ${noteAccentPalette[index % noteAccentPalette.length]} p-4 text-left shadow-[0_10px_30px_rgba(2,6,23,0.5)] transition hover:-translate-y-1 hover:border-slate-600`}
           onclick={() => openUpdateNoteModal(note)}
         >
           <span class="text-xs uppercase tracking-[0.35em] text-slate-500">Note</span>
@@ -126,7 +120,7 @@
         type="text"
         required
         placeholder="Retro talking points"
-        class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        class="rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
       />
     </div>
     <div class="flex w-full flex-col gap-2">
@@ -135,14 +129,14 @@
         bind:value={noteModalState.fields.content}
         name="content"
         placeholder="Collect highlights, meeting notes, or brainstorms..."
-        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
       ></textarea>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3">
       {#if noteModalState.mode == "update"}
         <button
           type="button"
-          class="text-sm font-semibold text-rose-300 hover:text-rose-200"
+          class="text-sm font-semibold text-rose-300 hover:text-rose-100"
           onclick={() => deleteNote(noteModalState.fields.id)}
         >
           Delete note
@@ -158,7 +152,7 @@
         </button>
         <button
           type="submit"
-          class="rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-900/40"
+          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
         >
           {noteModalState.mode === "create" ? "Create" : "Save"}
         </button>

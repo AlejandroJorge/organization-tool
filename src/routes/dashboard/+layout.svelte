@@ -36,7 +36,7 @@
   };
 </script>
 
-<div class="min-h-screen bg-slate-950 text-slate-100">
+<div class="min-h-screen bg-[#0b1220] text-slate-100">
   <div class="flex min-h-screen">
     <div
       class={`fixed inset-0 z-30 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
@@ -51,13 +51,13 @@
 
     <aside
       id="dashboard-sidebar"
-      class={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800/70 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950/40 p-6 transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
+      class={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800/70 bg-slate-900 p-6 transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
         isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}
       aria-label="Category navigation"
     >
       <button
-        class="mb-4 flex h-10 w-10 items-center justify-center self-end rounded-xl border border-slate-800/60 text-lg text-slate-400 transition hover:border-slate-600 hover:text-white lg:hidden"
+        class="mb-4 flex h-10 w-10 items-center justify-center self-end rounded-xl border border-slate-800/60 text-lg text-slate-300 transition hover:border-slate-600 hover:text-white lg:hidden"
         type="button"
         aria-label="Close sidebar"
         onclick={() => {
@@ -104,7 +104,7 @@
                 <span class="truncate">{category.name}</span>
               </a>
               <button
-                class="mr-2 hidden rounded-full border border-slate-700/60 px-2 text-xs text-slate-400 transition group-hover:block hover:border-rose-500 hover:text-rose-300"
+                class="mr-2 hidden rounded-full border border-slate-700/60 px-2 text-xs text-slate-300 transition group-hover:block hover:border-slate-500"
                 type="button"
                 onclick={() => {
                   deleteCategoryId = category.id;
@@ -121,19 +121,19 @@
       </nav>
 
       <form
-        class="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4"
+        class="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800/80 bg-slate-900 p-4"
         action="/dashboard?/createCategory"
         method="POST"
         use:enhance={handleFormResult}
       >
         <label
           for="categoryName"
-          class="text-xs uppercase tracking-[0.2em] text-slate-500"
+          class="text-xs uppercase tracking-[0.2em] text-slate-400"
           >New Category</label
         >
         <div class="flex gap-3">
           <input
-            class="w-full rounded-xl border border-slate-700/70 bg-slate-950/60 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            class="w-full rounded-xl border border-slate-700/70 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
             id="categoryName"
             name="name"
             type="text"
@@ -141,7 +141,7 @@
             required
           />
           <button
-            class="rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 px-4 text-sm font-semibold text-white shadow-lg shadow-indigo-900/30 transition hover:opacity-90"
+            class="rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
             type="submit"
           >
             +
@@ -176,7 +176,7 @@
           Open sidebar
         </button>
         <div
-          class="rounded-3xl border border-slate-800/60 bg-slate-900/70 p-6 shadow-2xl shadow-black/40"
+          class="rounded-3xl border border-slate-800/60 bg-slate-900 p-6 shadow-[0_10px_40px_rgba(2,6,23,0.6)]"
         >
           {@render children()}
         </div>
@@ -219,7 +219,7 @@
         Cancel
       </button>
       <button
-        class="rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-rose-900/40 transition hover:opacity-90"
+        class="rounded-xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
         type="submit"
       >
         Delete
