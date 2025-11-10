@@ -7,6 +7,11 @@
 </script>
 
 <svelte:head>
+	<title>Organize | Tasks & Notes</title>
+	<meta
+		name="description"
+		content="Organize your work with simple task lists and notes, all in one minimalist dashboard."
+	/>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 

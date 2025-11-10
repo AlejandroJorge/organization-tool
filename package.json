@@ -1,7 +1,9 @@
 {
-	"name": "2025-11-09-organization-tool",
+	"name": "organization-tool",
+	"description": "Simple SvelteKit-based organization tool for managing tasks and notes with SQLite.",
+	"version": "0.1.0",
+	"license": "MIT",
 	"private": true,
-	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
