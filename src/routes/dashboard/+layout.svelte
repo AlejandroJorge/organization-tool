@@ -40,7 +40,7 @@
 <div class="min-h-screen bg-[#0b1220] text-slate-100">
   <div class="flex min-h-screen">
     <div
-      class={`fixed inset-0 z-30 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+      class={`fixed inset-0 z-30 bg-slate-950/80 backdrop-blur-sm cursor-pointer transition-opacity duration-300 lg:hidden ${
         isMobileSidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
       aria-hidden={!isMobileSidebarOpen}
@@ -58,7 +58,7 @@
       aria-label="Category navigation"
     >
       <button
-        class="mb-4 flex h-10 w-10 items-center justify-center self-end rounded-xl border border-slate-800/60 text-lg text-slate-300 transition hover:border-slate-600 hover:text-white lg:hidden"
+        class="mb-4 flex h-10 w-10 cursor-pointer items-center justify-center self-end rounded-xl border border-slate-800/60 text-lg text-slate-300 transition hover:border-slate-600 hover:text-white lg:hidden"
         type="button"
         aria-label="Close sidebar"
         onclick={() => {
@@ -96,7 +96,7 @@
               }`}
             >
               <a
-                class="flex-1 px-4 py-3 "
+                class="flex-1 cursor-pointer px-4 py-3"
                 href={`/dashboard/${category.name}`}
                 onclick={() => {
                   isMobileSidebarOpen = false;
@@ -105,7 +105,7 @@
                 <span class="truncate">{category.name}</span>
               </a>
               <button
-                class="mr-2 hidden rounded-full border border-slate-700/60 px-2 text-xs text-slate-300 transition group-hover:block hover:border-slate-500"
+                class="mr-2 hidden cursor-pointer rounded-full border border-slate-700/60 px-2 text-xs text-slate-300 transition group-hover:block hover:border-slate-500"
                 type="button"
                 onclick={() => {
                   deleteCategoryId = category.id;
@@ -142,7 +142,7 @@
             required
           />
           <button
-            class="rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
+            class="rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
             type="submit"
           >
             +
@@ -154,7 +154,7 @@
     <main class="flex-1">
       <div class="flex flex-col gap-6 p-6 lg:p-10">
         <button
-          class="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:text-white lg:hidden"
+          class="inline-flex cursor-pointer items-center gap-2 self-start rounded-2xl border border-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:text-white lg:hidden"
           type="button"
           aria-controls="dashboard-sidebar"
           aria-expanded={isMobileSidebarOpen}
@@ -211,7 +211,7 @@
     </div>
     <div class="flex w-full justify-end gap-3">
       <button
-        class="rounded-xl border border-slate-700/70 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-slate-500"
+        class="rounded-xl border border-slate-700/70 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-slate-500 cursor-pointer"
         type="button"
         onclick={() => {
           isDeleteCategoryModalOpen = false;
@@ -222,7 +222,7 @@
         Cancel
       </button>
       <button
-        class="rounded-xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
+        class="rounded-xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
         type="submit"
       >
         Delete

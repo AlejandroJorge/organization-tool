@@ -21,7 +21,7 @@
     >
       <a
         href={`/dashboard/${category}/tasks`}
-        class={`rounded-2xl px-4 py-2 font-medium transition ${
+        class={`rounded-2xl cursor-pointer px-4 py-2 font-medium transition ${
           currentSection == "tasks"
             ? "bg-white/10 text-white shadow-inner shadow-black/30"
             : "text-slate-400 hover:text-white"
@@ -29,7 +29,7 @@
       >Tasks</a>
       <a
         href={`/dashboard/${category}/notes`}
-        class={`rounded-2xl px-4 py-2 font-medium transition ${
+        class={`rounded-2xl cursor-pointer px-4 py-2 font-medium transition ${
           currentSection == "notes"
             ? "bg-white/10 text-white shadow-inner shadow-black/30"
             : "text-slate-400 hover:text-white"

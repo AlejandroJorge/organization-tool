@@ -76,7 +76,7 @@
     <button
       onclick={openCreateNoteModal}
       type="button"
-      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
+      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
     >
       Add Note
     </button>
@@ -91,7 +91,7 @@
       {#each notes as note, index}
         <button
           type="button"
-          class={`w-full min-h-24 break-inside-avoid rounded-2xl border border-slate-800/70 ${noteAccentPalette[index % noteAccentPalette.length]} p-4 text-left shadow-[0_10px_30px_rgba(2,6,23,0.5)] transition hover:-translate-y-1 hover:border-slate-600`}
+          class={`w-full min-h-24 break-inside-avoid cursor-pointer rounded-2xl border border-slate-800/70 ${noteAccentPalette[index % noteAccentPalette.length]} p-4 text-left shadow-[0_10px_30px_rgba(2,6,23,0.5)] transition hover:-translate-y-1 hover:border-slate-600`}
           onclick={() => openUpdateNoteModal(note)}
         >
           <span class="text-xs uppercase tracking-[0.35em] text-slate-500">Note</span>
@@ -165,7 +165,7 @@
       {#if noteModalState.mode == "update"}
         <button
           type="button"
-          class="text-sm font-semibold text-rose-300 hover:text-rose-100"
+          class="text-sm font-semibold text-rose-300 hover:text-rose-100 cursor-pointer"
           onclick={() => deleteNote(noteModalState.fields.id)}
         >
           Delete note
@@ -175,13 +175,13 @@
         <button
           onclick={() => (noteModalState.isOpen = false)}
           type="button"
-          class="rounded-2xl border border-slate-700/70 px-4 py-2 text-sm font-semibold text-slate-300"
+          class="rounded-2xl border border-slate-700/70 px-4 py-2 text-sm font-semibold text-slate-300 cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
+          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
         >
           {noteModalState.mode === "create" ? "Create" : "Save"}
         </button>

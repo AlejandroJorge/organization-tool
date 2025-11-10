@@ -124,7 +124,7 @@
     <button
       onclick={openCreateTaskModal}
       type="button"
-      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
+      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
     >
       Add Task
     </button>
@@ -215,7 +215,7 @@
             />
           </div>
           <button
-            class="flex-1 text-left"
+            class="flex-1 cursor-pointer text-left"
             onclick={() => openUpdateTaskModal(task)}
           >
             <div class="flex items-start justify-between gap-4">
@@ -340,7 +340,7 @@
       {#if taskModalState.mode == "update"}
         <button
           type="button"
-          class="text-sm font-semibold text-rose-300 hover:text-rose-100"
+          class="text-sm font-semibold text-rose-300 hover:text-rose-100 cursor-pointer"
           onclick={() => deleteTask(taskModalState.fields.id)}
         >
           Delete task
@@ -350,13 +350,13 @@
         <button
           onclick={() => (taskModalState.isOpen = false)}
           type="button"
-          class="rounded-2xl border border-slate-700/70 px-4 py-2 text-sm font-semibold text-slate-300"
+          class="rounded-2xl border border-slate-700/70 px-4 py-2 text-sm font-semibold text-slate-300 cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300"
+          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
         >
           {taskModalState.mode === "create" ? "Create" : "Save"}
         </button>
