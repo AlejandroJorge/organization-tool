@@ -6,13 +6,14 @@
   import type { LayoutProps } from "./$types";
 
   let { children, data, params }: LayoutProps = $props();
-  const { categories } = data;
+  const { categories } = $derived(data);
   let activeCategory = $derived(params.category);
   let isMobileSidebarOpen = $state(false);
 
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
+
   const handleFormResult: SubmitFunction = () => {
     return async ({ result, update }) => {
       if (result.type === "success") {
@@ -20,6 +21,7 @@
           (result.data as { message?: string } | null)?.message ??
           "Action completed";
         toast.success(message);
+        isDeleteCategoryModalOpen = false
       } else if (result.type === "failure") {
         const message =
           (result.data as { message?: string } | null)?.message ??
