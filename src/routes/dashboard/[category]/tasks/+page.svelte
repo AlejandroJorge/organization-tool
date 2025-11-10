@@ -70,9 +70,14 @@
 
   async function reloadData() {
     const url = new URL(page.url);
-    url.searchParams.set("q", filters.searchQuery);
-    url.searchParams.set("onlyTodo", filters.showOnlyTodo);
-    url.searchParams.set("interval", filters.intervalValue);
+    if (filters.searchQuery) url.searchParams.set("q", filters.searchQuery);
+    else url.searchParams.delete("q");
+
+    if (filters.showOnlyTodo) url.searchParams.set("onlyTodo", "true");
+    else url.searchParams.delete("onlyTodo");
+
+    if (filters.intervalValue) url.searchParams.set("interval", filters.intervalValue);
+    else url.searchParams.delete("interval");
     goto(url.toString(), { keepFocus: true, noScroll: true });
   }
 
@@ -119,44 +124,40 @@
 
   <form
     method="GET"
-    class="grid gap-3 rounded-3xl border border-slate-800/70 bg-slate-950/40 p-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+    class="grid gap-4 rounded-3xl border border-slate-800/70 bg-slate-950/40 p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)]"
   >
     <label class="flex flex-col gap-2">
-      <span
-        class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Search</span
-      >
+      <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Search</span>
       <input
         type="search"
         name="q"
         bind:value={filters.searchQuery}
         oninput={reloadData}
         placeholder="Find tasks"
-        class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-      />
-    </label>
-
-    <label
-      class="flex h-full items-center justify-center gap-3 rounded-2xl border border-slate-800/70 bg-slate-900/60 px-4 py-2 text-sm font-semibold text-slate-200"
-    >
-      <span
-        class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Todo only</span
-      >
-      <input
-        type="checkbox"
-        name="onlyTodo"
-        bind:checked={filters.showOnlyTodo}
-        onchange={reloadData}
-        class="size-5 rounded border-slate-700/70 bg-slate-900 accent-indigo-500"
+        class="rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
       />
     </label>
 
     <label class="flex flex-col gap-2">
-      <span
-        class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Due within</span
-      >
+      <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Status</span>
+      <span class="flex items-center justify-between rounded-2xl border border-slate-800/70 bg-slate-900/70 px-4 py-2 text-sm font-semibold text-slate-200">
+        Only open tasks
+        <span class="relative inline-flex items-center">
+          <input
+            type="checkbox"
+            name="onlyTodo"
+            bind:checked={filters.showOnlyTodo}
+            onchange={reloadData}
+            class="peer sr-only"
+          />
+          <span class="block h-6 w-11 rounded-full bg-slate-700 transition peer-checked:bg-indigo-500"></span>
+          <span class="absolute left-1 top-1 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></span>
+        </span>
+      </span>
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Due within</span>
       <select
         name="interval"
         bind:value={filters.intervalValue}
@@ -169,13 +170,6 @@
         {/each}
       </select>
     </label>
-
-    <button
-      type="submit"
-      class="self-end rounded-2xl bg-gradient-to-r from-slate-700 to-slate-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/30 transition hover:opacity-90"
-    >
-      Apply
-    </button>
   </form>
 
   <ul class="space-y-3">
