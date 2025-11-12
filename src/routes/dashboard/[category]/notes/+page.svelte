@@ -12,6 +12,8 @@
   let dragState = $state<{ id: string | null; fromIndex: number }>({ id: null, fromIndex: -1 });
   let isDragging = $state(false);
   let lastPersistedOrder: string[] = [];
+  let noteInitialContent = $state("");
+  let noteDiscardModalOpen = $state(false);
 
   $effect(() => {
     orderedNotes = [...notes];
@@ -65,6 +67,7 @@
     noteModalState.fields.name = "";
     noteModalState.fields.content = "";
     noteModalState.isOpen = true;
+    noteInitialContent = "";
   }
 
   function openUpdateNoteModal(note: Note) {
@@ -74,6 +77,7 @@
     noteModalState.fields.name = note.name;
     noteModalState.fields.content = note.content;
     noteModalState.isOpen = true;
+    noteInitialContent = note.content ?? "";
   }
 
   function handleDragStart(noteId: string) {
@@ -157,6 +161,33 @@
     if (isDragging) return;
     openUpdateNoteModal(note);
   }
+
+  function hasNoteContentChanges() {
+    return (noteModalState.fields.content ?? "") !== noteInitialContent;
+  }
+
+  function handleNoteModalCloseRequest() {
+    if (hasNoteContentChanges()) {
+      noteDiscardModalOpen = true;
+      return false;
+    }
+    return true;
+  }
+
+  function onNoteCancel() {
+    if (handleNoteModalCloseRequest())
+      noteModalState.isOpen = false;
+  }
+
+  function keepEditingNote() {
+    noteDiscardModalOpen = false;
+  }
+
+  function discardNoteChanges() {
+    noteDiscardModalOpen = false;
+    noteModalState.isOpen = false;
+    noteModalState.fields.content = noteInitialContent;
+  }
 </script>
 
 <section class="space-y-6">
@@ -207,7 +238,7 @@
   {/if}
 </section>
 
-<Modal bind:isOpen={noteModalState.isOpen}>
+<Modal bind:isOpen={noteModalState.isOpen} onCloseRequest={handleNoteModalCloseRequest}>
   <form
     method="POST"
     action={noteActions[noteModalState.mode]}
@@ -275,7 +306,7 @@
       {/if}
       <div class="ml-auto flex gap-3">
         <button
-          onclick={() => (noteModalState.isOpen = false)}
+          onclick={onNoteCancel}
           type="button"
           class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
         >
@@ -290,4 +321,30 @@
       </div>
     </div>
   </form>
+</Modal>
+
+<Modal bind:isOpen={noteDiscardModalOpen}>
+  <div class="flex flex-col gap-4">
+    <div>
+      <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">Discard changes</p>
+      <h3 class="mt-2 text-2xl font-semibold text-white">Leave without saving?</h3>
+      <p class="mt-1 text-sm text-slate-400">You have unsaved note content. Discarding will remove those edits.</p>
+    </div>
+    <div class="ml-auto flex gap-3">
+      <button
+        type="button"
+        class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
+        onclick={keepEditingNote}
+      >
+        Keep editing
+      </button>
+      <button
+        type="button"
+        class="rounded-2xl bg-rose-400/80 px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+        onclick={discardNoteChanges}
+      >
+        Discard changes
+      </button>
+    </div>
+  </div>
 </Modal>

@@ -17,6 +17,8 @@
     showOnlyTodo: data.filters?.onlyTodo ?? false,
     intervalValue: data.filters?.interval ? String(data.filters.interval) : "",
   });
+  let taskInitialContent = $state("");
+  let taskDiscardModalOpen = $state(false);
 
   const intervalOptions = [
     { label: "Today", value: "1" },
@@ -101,6 +103,7 @@
     taskModalState.fields.status = false;
     taskModalState.fields.content = "";
     taskModalState.isOpen = true;
+    taskInitialContent = "";
   }
 
   function openUpdateTaskModal(task: Task) {
@@ -112,6 +115,34 @@
     taskModalState.fields.due = task.due;
     taskModalState.fields.content = task.content;
     taskModalState.isOpen = true;
+    taskInitialContent = task.content ?? "";
+  }
+
+  function hasTaskContentChanges() {
+    return (taskModalState.fields.content ?? "") !== taskInitialContent;
+  }
+
+  function handleTaskModalCloseRequest() {
+    if (hasTaskContentChanges()) {
+      taskDiscardModalOpen = true;
+      return false;
+    }
+    return true;
+  }
+
+  function onTaskCancel() {
+    if (handleTaskModalCloseRequest())
+      taskModalState.isOpen = false;
+  }
+
+  function keepEditingTask() {
+    taskDiscardModalOpen = false;
+  }
+
+  function discardTaskChanges() {
+    taskDiscardModalOpen = false;
+    taskModalState.isOpen = false;
+    taskModalState.fields.content = taskInitialContent;
   }
 </script>
 
@@ -240,7 +271,7 @@
   </ul>
 </section>
 
-<Modal bind:isOpen={taskModalState.isOpen}>
+<Modal bind:isOpen={taskModalState.isOpen} onCloseRequest={handleTaskModalCloseRequest}>
   <form
     method="POST"
     action={taskActions[taskModalState.mode]}
@@ -338,7 +369,7 @@
       {/if}
       <div class="ml-auto flex gap-3">
         <button
-          onclick={() => (taskModalState.isOpen = false)}
+          onclick={onTaskCancel}
           type="button"
           class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
         >
@@ -353,4 +384,30 @@
       </div>
     </div>
   </form>
+</Modal>
+
+<Modal bind:isOpen={taskDiscardModalOpen}>
+  <div class="flex flex-col gap-4">
+    <div>
+      <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">Discard changes</p>
+      <h3 class="mt-2 text-2xl font-semibold text-white">Leave without saving?</h3>
+      <p class="mt-1 text-sm text-slate-400">You have unsaved task details. Discarding will remove those edits.</p>
+    </div>
+    <div class="ml-auto flex gap-3">
+      <button
+        type="button"
+        class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
+        onclick={keepEditingTask}
+      >
+        Keep editing
+      </button>
+      <button
+        type="button"
+        class="rounded-2xl bg-rose-400/80 px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+        onclick={discardTaskChanges}
+      >
+        Discard changes
+      </button>
+    </div>
+  </div>
 </Modal>
