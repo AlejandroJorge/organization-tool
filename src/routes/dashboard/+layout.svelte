@@ -7,8 +7,7 @@
 
   let { children, data, params }: LayoutProps = $props();
   const { categories } = $derived(data);
-  let activeCategoryId = $derived(params.category);
-  const hasSelectedCategory = $derived(Boolean(params.category));
+  const activeCategoryId = $derived('category' in params ? params.category : null);
   let isMobileSidebarOpen = $state(false);
 
   let isCreateCategoryModalOpen = $state(false);
@@ -83,6 +82,20 @@
       </div>
 
       <nav class="flex-1 space-y-1.5 overflow-y-auto pr-1 text-sm">
+        <a
+          href="/dashboard"
+          class={`flex items-center gap-2 rounded-2xl px-3 py-2 font-medium transition ${
+            activeCategoryId === null
+              ? "bg-white/10 text-white shadow-inner shadow-black/20"
+              : "text-slate-400 hover:bg-white/5 hover:text-white"
+          }`}
+          onclick={() => {
+            isMobileSidebarOpen = false;
+          }}
+        >
+          <span class="flex-1 truncate">All tasks</span>
+          <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.3em] text-slate-400">View</span>
+        </a>
         {#if categories.length === 0}
           <p
             class="rounded-lg border border-dashed border-slate-800 px-4 py-3 text-sm text-slate-400"
@@ -168,17 +181,11 @@
           </svg>
           Menu
         </button>
-        {#if hasSelectedCategory}
-          <div
-            class="rounded-2xl border border-white/5 bg-[#080b14] p-5 shadow-[0_25px_75px_rgba(3,4,12,0.75)]"
-          >
-            {@render children()}
-          </div>
-        {:else}
-          <div class="rounded-2xl border border-dashed border-white/10 bg-[#080b14]/80 p-10 text-center text-sm text-slate-400">
-            Select a category or create a new one to start working.
-          </div>
-        {/if}
+        <div
+          class="rounded-2xl border border-white/5 bg-[#080b14] p-5 shadow-[0_25px_75px_rgba(3,4,12,0.75)]"
+        >
+          {@render children()}
+        </div>
       </div>
     </main>
   </div>
