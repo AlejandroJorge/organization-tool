@@ -7,34 +7,37 @@
 
   let { children, data, params }: LayoutProps = $props();
   const { categories } = $derived(data);
-  let activeCategory = $derived(params.category);
+  let activeCategoryId = $derived(params.category);
   const hasSelectedCategory = $derived(Boolean(params.category));
   let isMobileSidebarOpen = $state(false);
 
+  let isCreateCategoryModalOpen = $state(false);
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
 
-  const handleFormResult: SubmitFunction = () => {
-    return async ({ result, update }) => {
-      if (result.type === "success") {
-        const message =
-          (result.data as { message?: string } | null)?.message ??
-          "Action completed";
-        toast.success(message);
-        isDeleteCategoryModalOpen = false
-      } else if (result.type === "failure") {
-        const message =
-          (result.data as { message?: string } | null)?.message ??
-          "Something went wrong";
-        toast.error(message);
-      } else if (result.type === "error") {
-        toast.error("Unexpected error. Please try again.");
-      }
+  function createEnhanceHandler(onSuccess?: () => void): SubmitFunction {
+    return () => {
+      return async ({ result, update }) => {
+        if (result.type === "success") {
+          const message =
+            (result.data as { message?: string } | null)?.message ??
+            "Action completed";
+          toast.success(message);
+          onSuccess?.();
+        } else if (result.type === "failure") {
+          const message =
+            (result.data as { message?: string } | null)?.message ??
+            "Something went wrong";
+          toast.error(message);
+        } else if (result.type === "error") {
+          toast.error("Unexpected error. Please try again.");
+        }
 
-      await update();
+        await update();
+      };
     };
-  };
+  }
 </script>
 
 <div class="min-h-screen bg-[#05060c] text-slate-100">
@@ -90,14 +93,14 @@
           {#each categories as category}
             <div
               class={`group flex items-center gap-2 rounded-2xl px-3 py-2 font-medium transition ${
-                activeCategory === category.name
+                activeCategoryId === category.id
                   ? "bg-white/10 text-white shadow-inner shadow-black/20"
                   : "text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
               <a
                 class="flex-1 cursor-pointer"
-                href={`/dashboard/${category.name}`}
+                href={`/dashboard/${category.id}`}
                 onclick={() => {
                   isMobileSidebarOpen = false;
                 }}
@@ -121,34 +124,23 @@
         {/if}
       </nav>
 
-      <form
+      <div
         class="mt-5 flex flex-col gap-3 rounded-2xl border border-white/5 bg-[#080b14] p-4 shadow-[0_20px_60px_rgba(3,4,12,0.7)]"
-        action="/dashboard?/createCategory"
-        method="POST"
-        use:enhance={handleFormResult}
       >
-        <label
-          for="categoryName"
-          class="text-[11px] uppercase tracking-[0.35em] text-slate-500"
-          >New Category</label
+        <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">New category</p>
+        <p class="text-sm text-slate-400">
+          Spin up a fresh space for a project or team without leaving the flow.
+        </p>
+        <button
+          class="mt-1 inline-flex cursor-pointer items-center justify-center rounded-2xl bg-[var(--brand,#f1b24a)] px-4 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110"
+          type="button"
+          onclick={() => {
+            isCreateCategoryModalOpen = true;
+          }}
         >
-        <div class="flex gap-3">
-          <input
-            class="w-full rounded-xl border border-white/10 bg-[#05070f] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
-            id="categoryName"
-            name="name"
-            type="text"
-            placeholder="e.g. Product Launch"
-            required
-          />
-          <button
-            class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
-            type="submit"
-          >
-            +
-          </button>
-        </div>
-      </form>
+          New Category
+        </button>
+      </div>
     </aside>
 
     <main class="flex-1">
@@ -192,12 +184,66 @@
   </div>
 </div>
 
+<Modal bind:isOpen={isCreateCategoryModalOpen}>
+  <form
+    action="/dashboard?/createCategory"
+    method="POST"
+    class="flex flex-col gap-6"
+    use:enhance={createEnhanceHandler(() => {
+      isCreateCategoryModalOpen = false;
+    })}
+  >
+    <div>
+      <p class="text-[11px] uppercase tracking-[0.3em] text-slate-500">
+        New category
+      </p>
+      <p class="mt-2 text-lg font-semibold text-white">
+        Give your space a name
+      </p>
+      <p class="text-sm text-slate-400">
+        Think of categories as focused workspaces for projects, teams, or rituals.
+      </p>
+    </div>
+    <label class="flex flex-col gap-2 text-sm text-white/90">
+      <span class="text-[11px] uppercase tracking-[0.3em] text-slate-500">Name</span>
+      <input
+        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2 text-base text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
+        name="name"
+        type="text"
+        placeholder="e.g. Growth Sprint"
+        required
+      />
+    </label>
+    <div class="flex w-full justify-end gap-3">
+      <button
+        class="rounded-xl border border-slate-700/70 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-slate-500 cursor-pointer"
+        type="button"
+        onclick={() => {
+          isCreateCategoryModalOpen = false;
+        }}
+      >
+        Cancel
+      </button>
+      <button
+        class="rounded-xl bg-[var(--brand,#f1b24a)] px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+        type="submit"
+      >
+        Create
+      </button>
+    </div>
+  </form>
+</Modal>
+
 <Modal bind:isOpen={isDeleteCategoryModalOpen}>
   <form
     action="/dashboard?/deleteCategory"
     method="POST"
     class="flex flex-col gap-6"
-    use:enhance={handleFormResult}
+    use:enhance={createEnhanceHandler(() => {
+      isDeleteCategoryModalOpen = false;
+      deleteCategoryId = "";
+      deleteCategoryName = "";
+    })}
   >
     <input hidden type="text" name="id" value={deleteCategoryId} />
     <div>

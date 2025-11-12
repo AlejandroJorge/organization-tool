@@ -4,8 +4,8 @@ import { db } from "$lib/server/db";
 import { categories, notes } from "$lib/server/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
 
-const resolveCategory = async (categoryName: string) => {
-  const [record] = await db.select().from(categories).where(eq(categories.name, categoryName)).limit(1);
+const resolveCategory = async (categoryId: string) => {
+  const [record] = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
   if (!record) error(404, "Category not found");
   return record;
 };

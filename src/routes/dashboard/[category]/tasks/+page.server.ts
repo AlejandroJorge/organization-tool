@@ -5,8 +5,8 @@ import { categories, tasks } from "$lib/server/db/schema";
 import { and, asc, eq, sql, like, lt, or, isNull } from "drizzle-orm";
 import dayjs from "$lib/dayjs";
 
-const resolveCategory = async (categoryName: string) => {
-  const [record] = await db.select().from(categories).where(eq(categories.name, categoryName)).limit(1);
+const resolveCategory = async (categoryId: string) => {
+  const [record] = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
   if (!record) error(404, "Category not found");
   return record;
 };
