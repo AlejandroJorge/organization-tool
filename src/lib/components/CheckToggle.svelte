@@ -25,8 +25,8 @@
 
   const styles = $derived(
     checked
-      ? "bg-indigo-500/90 text-white border-indigo-400"
-      : "bg-slate-900 text-slate-500 border-slate-700",
+      ? "bg-emerald-500/80 text-white border-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.35)]"
+      : "bg-[#101425] text-slate-500 border-white/10",
   );
 </script>
 

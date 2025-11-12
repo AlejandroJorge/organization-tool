@@ -1,3 +1,26 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --surface-0: #05060c;
+    --surface-1: #080b14;
+    --surface-2: #0d1322;
+    --surface-3: #111830;
+    --border-muted: rgba(255, 255, 255, 0.05);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --text-muted: #8a92a6;
+    --brand: #f1b24a;
+  }
+
+  body {
+    @apply bg-[#05060c] text-slate-100 antialiased;
+  }
+
+  ::selection {
+    background: #f1b24a;
+    color: #05060c;
+  }
+}

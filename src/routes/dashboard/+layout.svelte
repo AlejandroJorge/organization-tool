@@ -37,10 +37,10 @@
   };
 </script>
 
-<div class="min-h-screen bg-[#0b1220] text-slate-100">
+<div class="min-h-screen bg-[#05060c] text-slate-100">
   <div class="flex min-h-screen">
     <div
-      class={`fixed inset-0 z-30 bg-slate-950/80 backdrop-blur-sm cursor-pointer transition-opacity duration-300 lg:hidden ${
+      class={`fixed inset-0 z-30 bg-black/70 backdrop-blur-sm cursor-pointer transition-opacity duration-300 lg:hidden ${
         isMobileSidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
       }`}
       aria-hidden={!isMobileSidebarOpen}
@@ -52,13 +52,13 @@
 
     <aside
       id="dashboard-sidebar"
-      class={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-800/70 bg-slate-900 p-6 transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
+      class={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-white/5 bg-[#090b15] p-5 shadow-[0_25px_80px_rgba(4,6,19,0.8)] transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
         isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}
       aria-label="Category navigation"
     >
       <button
-        class="mb-4 flex h-10 w-10 cursor-pointer items-center justify-center self-end rounded-xl border border-slate-800/60 text-lg text-slate-300 transition hover:border-slate-600 hover:text-white lg:hidden"
+        class="mb-4 flex h-9 w-9 cursor-pointer items-center justify-center self-end rounded-xl border border-white/10 text-base text-slate-300 transition hover:text-white lg:hidden"
         type="button"
         aria-label="Close sidebar"
         onclick={() => {
@@ -67,19 +67,19 @@
       >
         ×
       </button>
-      <div class="mb-8">
-        <p
-          class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500"
-        >
+      <div class="mb-5 space-y-1.5">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
           Spaces
         </p>
-        <h1 class="text-2xl font-semibold text-white">Organize</h1>
-        <p class="text-sm text-slate-400">
-          Switch between categories to manage tasks and notes.
-        </p>
+        <div class="flex items-center justify-between">
+          <h1 class="text-xl font-semibold text-white tracking-tight">Organize</h1>
+          <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+            {categories.length}
+          </span>
+        </div>
       </div>
 
-      <nav class="flex-1 space-y-1 overflow-y-auto pr-2">
+      <nav class="flex-1 space-y-1.5 overflow-y-auto pr-1 text-sm">
         {#if categories.length === 0}
           <p
             class="rounded-lg border border-dashed border-slate-800 px-4 py-3 text-sm text-slate-400"
@@ -89,14 +89,14 @@
         {:else}
           {#each categories as category}
             <div
-              class={`group flex items-center justify-between rounded-xl text-sm font-medium transition hover:bg-slate-800/60 ${
+              class={`group flex items-center gap-2 rounded-2xl px-3 py-2 font-medium transition ${
                 activeCategory === category.name
-                  ? "bg-slate-800/70 text-white"
-                  : "text-slate-300"
+                  ? "bg-white/10 text-white shadow-inner shadow-black/20"
+                  : "text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
               <a
-                class="flex-1 cursor-pointer px-4 py-3"
+                class="flex-1 cursor-pointer"
                 href={`/dashboard/${category.name}`}
                 onclick={() => {
                   isMobileSidebarOpen = false;
@@ -105,7 +105,7 @@
                 <span class="truncate">{category.name}</span>
               </a>
               <button
-                class="mr-2 hidden cursor-pointer rounded-full border border-slate-700/60 px-2 text-xs text-slate-300 transition group-hover:block hover:border-slate-500"
+                class="mr-1 hidden cursor-pointer rounded-full border border-white/10 px-2 text-xs text-slate-400 transition group-hover:inline-flex hover:border-white/30"
                 type="button"
                 onclick={() => {
                   deleteCategoryId = category.id;
@@ -122,19 +122,19 @@
       </nav>
 
       <form
-        class="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800/80 bg-slate-900 p-4"
+        class="mt-5 flex flex-col gap-3 rounded-2xl border border-white/5 bg-[#080b14] p-4 shadow-[0_20px_60px_rgba(3,4,12,0.7)]"
         action="/dashboard?/createCategory"
         method="POST"
         use:enhance={handleFormResult}
       >
         <label
           for="categoryName"
-          class="text-xs uppercase tracking-[0.2em] text-slate-400"
+          class="text-[11px] uppercase tracking-[0.35em] text-slate-500"
           >New Category</label
         >
         <div class="flex gap-3">
           <input
-            class="w-full rounded-xl border border-slate-700/70 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
+            class="w-full rounded-xl border border-white/10 bg-[#05070f] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
             id="categoryName"
             name="name"
             type="text"
@@ -142,7 +142,7 @@
             required
           />
           <button
-            class="rounded-xl bg-slate-200 px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
+            class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
             type="submit"
           >
             +
@@ -152,9 +152,9 @@
     </aside>
 
     <main class="flex-1">
-      <div class="flex flex-col gap-6 p-6 lg:p-10">
+      <div class="flex flex-col gap-4 p-4 lg:p-8">
         <button
-          class="inline-flex cursor-pointer items-center gap-2 self-start rounded-2xl border border-slate-800/70 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-600 hover:text-white lg:hidden"
+          class="inline-flex cursor-pointer items-center gap-2 self-start rounded-2xl border border-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-300 transition hover:text-white lg:hidden"
           type="button"
           aria-controls="dashboard-sidebar"
           aria-expanded={isMobileSidebarOpen}
@@ -174,13 +174,17 @@
           >
             <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
-          Open sidebar
+          Menu
         </button>
         {#if hasSelectedCategory}
           <div
-            class="rounded-3xl border border-slate-800/60 bg-slate-900 p-6 shadow-[0_10px_40px_rgba(2,6,23,0.6)]"
+            class="rounded-2xl border border-white/5 bg-[#080b14] p-5 shadow-[0_25px_75px_rgba(3,4,12,0.75)]"
           >
             {@render children()}
+          </div>
+        {:else}
+          <div class="rounded-2xl border border-dashed border-white/10 bg-[#080b14]/80 p-10 text-center text-sm text-slate-400">
+            Select a category or create a new one to start working.
           </div>
         {/if}
       </div>

@@ -8,7 +8,7 @@
   const { notes } = $derived(data);
   type Note = (typeof data.notes)[number];
 
-  const noteAccentPalette = ["bg-slate-900", "bg-slate-900"] as const;
+  const noteAccentPalette = ["bg-[#101425]", "bg-[#0d1320]"] as const;
   const notePreviewToggleId = "note-preview-toggle";
 
   let noteModalState: {
@@ -68,22 +68,24 @@
 </script>
 
 <section class="space-y-6">
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <div>
-      <h2 class="text-lg font-semibold text-white">Notes</h2>
-      <p class="text-sm text-slate-500">Capture supporting details.</p>
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3 text-sm text-slate-500">
+      <h2 class="text-xl font-semibold text-white tracking-tight">Notes</h2>
+      <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.3em]">
+        {notes.length}
+      </span>
     </div>
     <button
       onclick={openCreateNoteModal}
       type="button"
-      class="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
+      class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
     >
-      Add Note
+      New Note
     </button>
-  </div>
+  </header>
 
   {#if notes.length === 0}
-    <div class="rounded-2xl border border-dashed border-slate-800/80 px-4 py-6 text-center text-sm text-slate-500">
+    <div class="rounded-2xl border border-dashed border-white/10 bg-[#080b14]/60 px-4 py-6 text-center text-sm text-slate-500">
       No notes yet. Add context to your work.
     </div>
   {:else}
@@ -91,11 +93,11 @@
       {#each notes as note, index}
         <button
           type="button"
-          class={`w-full min-h-24 break-inside-avoid cursor-pointer rounded-2xl border border-slate-800/70 ${noteAccentPalette[index % noteAccentPalette.length]} p-4 text-left shadow-[0_10px_30px_rgba(2,6,23,0.5)] transition hover:-translate-y-1 hover:border-slate-600`}
+          class={`w-full min-h-24 break-inside-avoid cursor-pointer rounded-2xl border border-white/5 ${noteAccentPalette[index % noteAccentPalette.length]} p-4 text-left shadow-[0_25px_60px_rgba(3,4,12,0.55)] transition hover:-translate-y-1 hover:border-white/20`}
           onclick={() => openUpdateNoteModal(note)}
         >
-          <span class="text-xs uppercase tracking-[0.35em] text-slate-500">Note</span>
-          <h3 class="mb-3 mt-2 line-clamp-1 text-base font-semibold text-white">{note.name}</h3>
+          <span class="text-[11px] uppercase tracking-[0.35em] text-slate-500">Note</span>
+          <h3 class="mb-2 mt-2 line-clamp-1 text-base font-semibold text-white">{note.name}</h3>
           <p class="text-sm text-slate-300" class:line-clamp-6={note.content?.length && note.content.length > 280}>
             {note.content}
           </p>
@@ -113,32 +115,32 @@
   >
     <input hidden type="text" name="id" value={noteModalState.fields.id} />
     <div>
-      <p class="text-xs uppercase tracking-[0.4em] text-slate-500">{noteModalState.mode} note</p>
+      <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">{noteModalState.mode} note</p>
       <h3 class="mt-2 text-2xl font-semibold text-white">
         {noteModalState.mode === "create" ? "New note" : "Update note"}
       </h3>
     </div>
     <div class="flex flex-col gap-2">
-      <label for="name" class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Title</label>
+      <label for="name" class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500">Title</label>
       <input
         bind:value={noteModalState.fields.name}
         name="name"
         type="text"
         required
         placeholder="Retro talking points"
-        class="rounded-2xl border border-slate-800/70 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none"
+        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
       />
     </div>
     <div class="flex w-full flex-col gap-2">
       <div class="flex items-center justify-between gap-3">
         <label
           for="content"
-          class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500"
+          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
           >Content</label
         >
         <label
           for={notePreviewToggleId}
-          class="flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-900/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400"
+          class="flex items-center gap-2 rounded-full border border-white/10 bg-[#0b0f1c] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400"
         >
           Preview
           <span class="relative inline-flex items-center">
@@ -148,8 +150,8 @@
               bind:checked={noteModalState.isPreview}
               class="peer sr-only"
             />
-            <span class="block h-5 w-9 rounded-full border border-slate-700 bg-slate-800 transition peer-checked:border-slate-200 peer-checked:bg-slate-200"></span>
-            <span class="absolute left-0.5 top-0.5 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-4"></span>
+            <span class="block h-5 w-9 rounded-full border border-white/10 bg-white/10 transition peer-checked:border-white/60 peer-checked:bg-white/80"></span>
+            <span class="absolute left-0.5 top-0.5 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-4 peer-checked:bg-[#05060c]"></span>
           </span>
         </label>
       </div>
@@ -158,14 +160,14 @@
         bind:value={noteModalState.fields.content}
         name="content"
         placeholder="Collect highlights, meeting notes, or brainstorms..."
-        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-slate-800/70 bg-slate-950 p-4 text-sm text-white placeholder:text-slate-600 focus:border-slate-500 focus:outline-none {noteModalState.isPreview ? 'overflow-y-scroll' : '' }"
+        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-white/10 bg-[#05070f] p-4 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none {noteModalState.isPreview ? 'overflow-y-scroll' : '' }"
       ></MDInput>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3">
       {#if noteModalState.mode == "update"}
         <button
           type="button"
-          class="text-sm font-semibold text-rose-300 hover:text-rose-100 cursor-pointer"
+          class="text-sm font-semibold text-rose-300/80 hover:text-rose-100 cursor-pointer"
           onclick={() => deleteNote(noteModalState.fields.id)}
         >
           Delete note
@@ -175,13 +177,13 @@
         <button
           onclick={() => (noteModalState.isOpen = false)}
           type="button"
-          class="rounded-2xl border border-slate-700/70 px-4 py-2 text-sm font-semibold text-slate-300 cursor-pointer"
+          class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="rounded-2xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
+          class="rounded-2xl bg-[var(--brand,#f1b24a)] px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
         >
           {noteModalState.mode === "create" ? "Create" : "Save"}
         </button>
