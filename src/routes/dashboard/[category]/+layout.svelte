@@ -28,16 +28,14 @@
   });
 </script>
 
-<section class="space-y-6">
-  <header
-    class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/5 bg-[#0b0f1c] px-5 py-4"
-  >
-    <div class="space-y-2">
-      <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">Working on</p>
-      <div class="flex flex-wrap items-center gap-3">
-        <h1 class="text-2xl font-semibold text-white">{categoryName}</h1>
+<section class="space-y-5">
+  <header class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#06080f] px-4 py-3 text-sm text-slate-300">
+    <div class="space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.4em] text-slate-500">Working on</p>
+      <div class="flex flex-wrap items-center gap-2">
+        <h1 class="text-xl font-semibold text-white">{categoryName}</h1>
         <button
-          class="inline-flex cursor-pointer items-center gap-1 rounded-xl border border-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-slate-300 transition hover:border-white/30 hover:text-white"
+          class="inline-flex cursor-pointer items-center rounded-lg border border-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-200 hover:border-white/40"
           type="button"
           onclick={() => {
             isRenameModalOpen = true;
@@ -47,25 +45,14 @@
         </button>
       </div>
     </div>
-    <nav
-      class="inline-flex rounded-2xl border border-white/10 bg-white/5 p-1 text-sm text-slate-300"
-      aria-label="Category sections"
-    >
+    <nav class="inline-flex items-center gap-2 rounded-full border border-white/15 px-2 py-1 text-[11px] uppercase tracking-[0.35em]" aria-label="Category sections">
       <a
         href={`/dashboard/${categoryId}/tasks`}
-        class={`rounded-xl cursor-pointer px-3.5 py-1.5 font-medium transition ${
-          currentSection == "tasks"
-            ? "bg-white/20 text-white shadow-inner shadow-black/30"
-            : "text-slate-400 hover:text-white"
-        }`}
+        class={`rounded-full px-3 py-1 ${currentSection == "tasks" ? "bg-white/20 text-white" : "text-slate-400 hover:text-white"}`}
       >Tasks</a>
       <a
         href={`/dashboard/${categoryId}/notes`}
-        class={`rounded-xl cursor-pointer px-3.5 py-1.5 font-medium transition ${
-          currentSection == "notes"
-            ? "bg-white/20 text-white shadow-inner shadow-black/30"
-            : "text-slate-400 hover:text-white"
-        }`}
+        class={`rounded-full px-3 py-1 ${currentSection == "notes" ? "bg-white/20 text-white" : "text-slate-400 hover:text-white"}`}
       >Notes</a>
     </nav>
   </header>
@@ -77,22 +64,17 @@
   <form
     action={`/dashboard/${categoryId}?/renameCategory`}
     method="POST"
-    class="flex flex-col gap-6"
+    class="flex w-full flex-col gap-4"
     use:enhance={handleRenameResult}
   >
-    <div>
-      <p class="text-[11px] uppercase tracking-[0.3em] text-slate-500">Rename category</p>
-      <p class="mt-2 text-lg font-semibold text-white">
-        Give "{categoryName}" a new name
-      </p>
-      <p class="text-sm text-slate-400">
-        Keep names short, descriptive, and easy to scan from the sidebar.
-      </p>
+    <div class="space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.45em] text-slate-500">Rename category</p>
+      <p class="text-lg font-semibold text-white">Give "{categoryName}" a new name</p>
     </div>
     <label class="flex flex-col gap-2 text-sm text-white/90">
-      <span class="text-[11px] uppercase tracking-[0.3em] text-slate-500">Category name</span>
+      <span class="text-[10px] uppercase tracking-[0.4em] text-slate-500">Category name</span>
       <input
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2 text-base text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
+        class="rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-white/40 focus:outline-none"
         type="text"
         name="name"
         bind:value={renameValue}
@@ -101,9 +83,9 @@
         required
       />
     </label>
-    <div class="flex justify-end gap-3">
+    <div class="flex justify-end gap-2">
       <button
-        class="rounded-xl border border-slate-700/70 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-slate-500 cursor-pointer"
+        class="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200"
         type="button"
         onclick={() => {
           isRenameModalOpen = false;
@@ -113,7 +95,7 @@
         Cancel
       </button>
       <button
-        class="rounded-xl bg-[var(--brand,#f1b24a)] px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+        class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c]"
         type="submit"
       >
         Save

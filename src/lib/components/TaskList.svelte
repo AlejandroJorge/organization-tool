@@ -99,90 +99,88 @@
   {:else}
     {#each tasks as task}
       <li
-        class={`flex items-start gap-3 rounded-2xl border px-4 py-4 transition-colors ${
+        class={`flex items-center gap-3 rounded-xl border px-3 py-2 text-sm transition ${
           isOverdue(task)
-            ? "border-rose-500/50 bg-[#1a0c12]"
-            : "border-white/5 bg-[#0b0f1c]"
+            ? "border-rose-500/60 bg-rose-500/5"
+            : "border-white/10 bg-white/5/0"
         }`}
       >
-        <div class="mt-1">
-          <CheckToggle
-            checked={task.status}
-            disabled={readOnly || !onToggle}
-            label={`Mark ${task.name} as ${task.status ? "pending" : "done"}`}
-            onchange={() => handleToggle(task)}
-          />
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex w-full flex-col gap-2">
-            <button
-              type="button"
-              class="flex w-full cursor-pointer flex-col gap-1 text-left"
-              onclick={() => handleSelect(task)}
-              disabled={!onSelect}
-            >
-            <div class="flex flex-wrap items-center gap-2">
-              <p class={`text-base font-semibold ${task.status ? "line-through text-slate-500" : "text-slate-100"}`}>
-                {task.name}
-              </p>
+        <CheckToggle
+          checked={task.status}
+          disabled={readOnly || !onToggle}
+          label={`Mark ${task.name} as ${task.status ? "pending" : "done"}`}
+          onchange={() => handleToggle(task)}
+        />
+        <div class="flex min-w-0 flex-1 items-center gap-3">
+          <button
+            type="button"
+            class="min-w-0 flex-1 cursor-pointer text-left"
+            onclick={() => handleSelect(task)}
+            disabled={!onSelect}
+          >
+            <div class="min-w-0 space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class={`truncate font-semibold ${task.status ? "text-slate-500 line-through" : "text-slate-50"}`}>
+                  {task.name}
+                </p>
               {#if isRecurring(task)}
                 <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.25em] text-slate-400">
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 20 20"
-                    class="h-3.5 w-3.5"
+                    class="h-3 w-3"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="1.8"
+                    stroke-width="1.6"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
                     <path d="M10 4v3.5h3" />
                     <path d="M5 5a7 7 0 1 1-2 5" />
                   </svg>
-                  <span class="whitespace-nowrap text-[0.65rem] tracking-[0.2em]">
-                    {task.recurrence === "daily" ? "Daily" : "Weekdays"}
-                  </span>
+                  {task.recurrence === "daily" ? "Daily" : "Weekdays"}
                 </span>
               {/if}
               {#if showCategoryBadge && task.categoryId}
                 <a
-                  class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.3em] text-slate-400 hover:text-white hover:border-white/30"
+                  class="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.35em] text-slate-400 hover:border-white/30 hover:text-white"
                   href={`/dashboard/${task.categoryId}/tasks`}
                 >
-                  {categoryLookup[task.categoryId] ?? "View space"}
+                  {categoryLookup[task.categoryId] ?? "Space"}
                 </a>
               {/if}
-              <div class="ml-auto flex flex-col items-end gap-1 text-xs font-semibold whitespace-nowrap">
-                {#if formatDue(task.due)}
-                  <span class="text-slate-300">{formatDue(task.due)}</span>
-                {/if}
-                {#if isOverdue(task)}
-                  <span class="text-rose-300">Past due</span>
-                {/if}
-              </div>
             </div>
-            <p class="line-clamp-2 text-sm text-slate-400">
-              {task.content ?? "No details captured yet."}
-            </p>
-            {#if recurrenceLabel(task) || isOverdue(task)}
-              <div class="mt-2 flex flex-wrap items-center gap-3 text-xs">
-                {#if recurrenceLabel(task)}
-                  <span class="text-slate-400">{recurrenceLabel(task)}</span>
-                {/if}
-                {#if isOverdue(task)}
-                  <span class="text-rose-200">Wrap this up—its due date has already passed.</span>
-                {/if}
-              </div>
+              {#if task.content || (!task.content && !task.status)}
+                <p class="line-clamp-1 text-xs text-slate-400">
+                  {task.content ?? "No details yet"}
+                </p>
+              {/if}
+              {#if recurrenceLabel(task) || isOverdue(task)}
+                <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                  {#if recurrenceLabel(task)}
+                    <span>{recurrenceLabel(task)}</span>
+                  {/if}
+                  {#if isOverdue(task)}
+                    <span class="text-rose-200">Past due</span>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          </button>
+          <div class="flex flex-col items-end gap-1 text-xs whitespace-nowrap">
+            {#if formatDue(task.due)}
+              <span class="text-slate-200">{formatDue(task.due)}</span>
             {/if}
-            </button>
             {#if onReschedule && isOverdue(task) && isRecurring(task)}
               <button
                 type="button"
-                class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200 transition hover:border-white/30"
-                onclick={() => handleReschedule(task)}
+                class="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-300 hover:text-white"
+                onclick={(event) => {
+                  event.stopPropagation();
+                  handleReschedule(task);
+                }}
               >
-                Reschedule
+                Resched
               </button>
             {/if}
           </div>

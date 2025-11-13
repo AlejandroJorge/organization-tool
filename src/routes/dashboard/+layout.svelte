@@ -21,7 +21,7 @@
 
 </script>
 
-<div class="min-h-screen bg-[#05060c] text-slate-100">
+<div class="min-h-screen bg-[#030406] text-slate-100">
   <div class="flex min-h-screen">
     <div
       class={`fixed inset-0 z-30 bg-black/70 backdrop-blur-sm cursor-pointer transition-opacity duration-300 lg:hidden ${
@@ -36,25 +36,20 @@
 
     <aside
       id="dashboard-sidebar"
-      class={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-white/5 bg-[#090b15] p-5 shadow-[0_25px_80px_rgba(4,6,19,0.8)] transition-transform duration-300 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
+      class={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-white/5 bg-[#07090f] px-5 py-6 transition-transform duration-200 ease-out lg:static lg:flex lg:translate-x-0 lg:transform-none ${
         isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}
       aria-label="Category navigation"
     >
-      <div class="mb-5 flex items-center justify-between gap-3">
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div class="space-y-0.5">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.45em] text-slate-500">
             Spaces
           </p>
-          <div class="mt-1 flex items-center gap-2">
-            <h1 class="text-xl font-semibold text-white tracking-tight">Organize</h1>
-            <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-medium text-slate-400">
-              {categories.length}
-            </span>
-          </div>
+          <h1 class="text-lg font-semibold text-white tracking-tight">Organize</h1>
         </div>
         <button
-          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 text-base text-slate-300 transition hover:text-white lg:hidden"
+          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 text-base text-slate-400 transition hover:text-white lg:hidden"
           type="button"
           aria-label="Close sidebar"
           onclick={() => {
@@ -65,12 +60,12 @@
         </button>
       </div>
 
-      <nav class="flex-1 space-y-1.5 overflow-y-auto pr-1 text-sm">
+      <nav class="flex-1 space-y-1 overflow-y-auto pr-1 text-sm">
         <a
           href="/dashboard"
-          class={`flex items-center gap-2 rounded-2xl px-3 py-2 font-medium transition ${
+          class={`flex items-center gap-2 rounded-xl px-3 py-2 font-medium transition ${
             activeCategoryId === null
-              ? "bg-white/10 text-white shadow-inner shadow-black/20"
+              ? "bg-white/10 text-white"
               : "text-slate-400 hover:bg-white/5 hover:text-white"
           }`}
           onclick={() => {
@@ -82,16 +77,16 @@
         </a>
         {#if categories.length === 0}
           <p
-            class="rounded-lg border border-dashed border-slate-800 px-4 py-3 text-sm text-slate-400"
+            class="rounded-lg border border-dashed border-slate-800/80 px-3 py-2 text-xs text-slate-500"
           >
             Create your first category to get started.
           </p>
         {:else}
           {#each categories as category}
             <div
-              class={`group flex items-center gap-2 rounded-2xl px-3 py-2 font-medium transition ${
+              class={`group flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${
                 activeCategoryId === category.id
-                  ? "bg-white/10 text-white shadow-inner shadow-black/20"
+                  ? "bg-white/10 text-white"
                   : "text-slate-400 hover:bg-white/5 hover:text-white"
               }`}
             >
@@ -122,7 +117,7 @@
       </nav>
 
       <button
-        class="mt-5 inline-flex w-full cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-[var(--brand,#f1b24a)] px-4 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110"
+        class="mt-4 inline-flex w-full cursor-pointer items-center justify-center rounded-xl bg-[var(--brand,#f1b24a)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c] transition hover:brightness-110"
         type="button"
         onclick={() => {
           isCreateCategoryModalOpen = true;
@@ -167,9 +162,7 @@
           </svg>
           Menu
         </button>
-        <div
-          class="flex h-full min-h-0 flex-col rounded-2xl border border-white/5 bg-[#080b14] p-5 shadow-[0_25px_75px_rgba(3,4,12,0.75)]"
-        >
+        <div class="flex h-full min-h-0 flex-col rounded-2xl border border-white/10 bg-[#05070f] p-5">
           {@render children()}
         </div>
       </div>
@@ -181,35 +174,28 @@
   <form
     action="/dashboard?/createCategory"
     method="POST"
-    class="flex flex-col gap-6"
+    class="flex w-full flex-col gap-4"
     use:enhance={createEnhanceHandler(() => {
       isCreateCategoryModalOpen = false;
     })}
   >
-    <div>
-      <p class="text-[11px] uppercase tracking-[0.3em] text-slate-500">
-        New category
-      </p>
-      <p class="mt-2 text-lg font-semibold text-white">
-        Give your space a name
-      </p>
-      <p class="text-sm text-slate-400">
-        Think of categories as focused workspaces for projects, teams, or rituals.
-      </p>
+    <div class="space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.45em] text-slate-500">New category</p>
+      <p class="text-lg font-semibold text-white">Create a space</p>
     </div>
     <label class="flex flex-col gap-2 text-sm text-white/90">
-      <span class="text-[11px] uppercase tracking-[0.3em] text-slate-500">Name</span>
+      <span class="text-[10px] uppercase tracking-[0.4em] text-slate-500">Name</span>
       <input
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2 text-base text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
+        class="rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-white/40 focus:outline-none"
         name="name"
         type="text"
         placeholder="e.g. Growth Sprint"
         required
       />
     </label>
-    <div class="flex w-full justify-end gap-3">
+    <div class="flex w-full justify-end gap-2">
       <button
-        class="rounded-xl border border-slate-700/70 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-slate-500 cursor-pointer"
+        class="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200"
         type="button"
         onclick={() => {
           isCreateCategoryModalOpen = false;
@@ -218,7 +204,7 @@
         Cancel
       </button>
       <button
-        class="rounded-xl bg-[var(--brand,#f1b24a)] px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+        class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c]"
         type="submit"
       >
         Create
@@ -231,7 +217,7 @@
   <form
     action="/dashboard?/deleteCategory"
     method="POST"
-    class="flex flex-col gap-6"
+    class="flex w-full flex-col gap-4"
     use:enhance={createEnhanceHandler(() => {
       isDeleteCategoryModalOpen = false;
       deleteCategoryId = "";
@@ -239,14 +225,12 @@
     })}
   >
     <input hidden type="text" name="id" value={deleteCategoryId} />
-    <div>
-      <p class="text-sm uppercase tracking-[0.3em] text-slate-500">
+    <div class="space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.45em] text-slate-500">
         Delete category
       </p>
-      <p class="mt-2 text-lg font-semibold text-white">
-        {deleteCategoryName
-          ? `Remove "${deleteCategoryName}"?`
-          : "Remove this category?"}
+      <p class="text-lg font-semibold text-white">
+        {deleteCategoryName ? `Remove "${deleteCategoryName}"?` : "Remove this category?"}
       </p>
       <p class="text-sm text-slate-400">
         Only empty categories can be removed. This action cannot be undone.
@@ -254,7 +238,7 @@
     </div>
     <div class="flex w-full justify-end gap-3">
       <button
-        class="rounded-xl border border-slate-700/70 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-slate-500 cursor-pointer"
+        class="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200"
         type="button"
         onclick={() => {
           isDeleteCategoryModalOpen = false;
@@ -265,7 +249,7 @@
         Cancel
       </button>
       <button
-        class="rounded-xl bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-300 cursor-pointer"
+        class="rounded-xl bg-rose-400/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c]"
         type="submit"
       >
         Delete

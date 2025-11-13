@@ -259,82 +259,55 @@
   }
 </script>
 
-<section class="flex min-h-0 flex-col space-y-6">
-  <header class="flex flex-wrap items-center justify-between gap-3">
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-      <h2 class="text-xl font-semibold text-white tracking-tight">Tasks</h2>
-      <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.3em]">
+<section class="flex min-h-0 flex-col space-y-4">
+  <header class="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-400">
+    <div class="flex items-center gap-2">
+      <h2 class="text-lg font-semibold text-white tracking-tight">Tasks</h2>
+      <span class="rounded-full border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.35em]">
         {tasks.length}
       </span>
     </div>
     <button
       onclick={openCreateTaskModal}
       type="button"
-      class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+      class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c] transition hover:brightness-110 cursor-pointer"
     >
       New Task
     </button>
   </header>
 
-  <form
-    method="GET"
-    class="grid gap-3 rounded-2xl border border-white/5 bg-[#080b14] p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.75fr)_minmax(0,0.75fr)]"
-  >
-    <label class="flex flex-col gap-2">
-      <span
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Search</span
-      >
+  <form method="GET" class="rounded-2xl border border-white/10 bg-[#06080f] p-4">
+    <div class="flex flex-wrap items-center gap-3">
       <input
         type="search"
         name="q"
         bind:value={filters.searchQuery}
         oninput={reloadData}
-        placeholder="Find tasks"
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-white/30 focus:outline-none"
+        placeholder="Search tasks"
+        class="w-full flex-1 rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-white/40 focus:outline-none md:w-auto"
       />
-    </label>
-
-    <label class="flex flex-col gap-2">
-      <span
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Status</span
-      >
-      <span
-        class="flex items-center justify-between rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2 text-sm font-semibold text-slate-200"
-      >
-        Only open tasks
-        <span class="relative inline-flex items-center">
-          <input
-            type="checkbox"
-            name="onlyTodo"
-            bind:checked={filters.showOnlyTodo}
-            onchange={reloadData}
-            class="peer sr-only"
-          />
-          <span class="block h-6 w-11 rounded-full bg-white/10 transition peer-checked:bg-white/80"></span>
-          <span class="absolute left-1 top-1 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5 peer-checked:bg-[#05060c]"></span>
-        </span>
-      </span>
-    </label>
-
-    <label class="flex flex-col gap-2">
-      <span
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Due within</span
-      >
+      <label class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+        <input
+          type="checkbox"
+          name="onlyTodo"
+          bind:checked={filters.showOnlyTodo}
+          onchange={reloadData}
+          class="h-4 w-4 rounded border border-white/30 bg-transparent text-white focus:ring-0"
+        />
+        Only open
+      </label>
       <select
         name="interval"
         bind:value={filters.intervalValue}
         onchange={reloadData}
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2.5 text-sm text-slate-100 focus:border-white/30 focus:outline-none"
+        class="min-w-[150px] rounded-xl border border-white/15 bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 focus:border-white/40"
       >
         <option value="">Any time</option>
         {#each intervalOptions as option}
           <option value={option.value}>{option.label}</option>
         {/each}
       </select>
-    </label>
+    </div>
   </form>
 
   <div class="flex-1 min-h-0 overflow-y-auto pr-1">
@@ -348,21 +321,21 @@
   </div>
 
   {#if pagination && pagination.totalPages > 1}
-    <nav class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/5 bg-[#080b14] px-4 py-3 text-sm text-slate-300">
+    <nav class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#06080f] px-4 py-3 text-xs text-slate-300">
       <button
         type="button"
-        class="inline-flex items-center rounded-xl border border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] transition hover:border-white/30 disabled:opacity-50 disabled:hover:border-white/10"
+        class="inline-flex items-center rounded-xl border border-white/15 px-3 py-1 font-semibold uppercase tracking-[0.35em] transition hover:border-white/30 disabled:opacity-50 disabled:hover:border-white/15"
         onclick={() => changePage(pagination.page - 1)}
         disabled={pagination.page <= 1}
       >
         Previous
       </button>
-      <p class="text-xs uppercase tracking-[0.3em] text-slate-400">
+      <p class="text-[10px] uppercase tracking-[0.4em] text-slate-400">
         Page {pagination.page} of {pagination.totalPages} · {pagination.total} tasks
       </p>
       <button
         type="button"
-        class="inline-flex items-center rounded-xl border border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] transition hover:border-white/30 disabled:opacity-50 disabled:hover:border-white/10"
+        class="inline-flex items-center rounded-xl border border-white/15 px-3 py-1 font-semibold uppercase tracking-[0.35em] transition hover:border-white/30 disabled:opacity-50 disabled:hover:border-white/15"
         onclick={() => changePage(pagination.page + 1)}
         disabled={pagination.page >= pagination.totalPages}
       >
@@ -376,15 +349,15 @@
   <form
     method="POST"
     action={taskActions[taskModalState.mode]}
-    class="flex w-full max-w-2xl flex-col gap-5"
+    class="flex w-full flex-col gap-5"
     use:enhance={handleTaskFormResult}
   >
     <input hidden type="text" name="id" value={taskModalState.fields.id} />
-    <div>
-      <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">
+    <div class="space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.45em] text-slate-500">
         {taskModalState.mode} task
       </p>
-      <h3 class="mt-2 text-2xl font-semibold text-white">
+      <h3 class="text-xl font-semibold text-white">
         {taskModalState.mode === "create" ? "New task" : "Update task"}
       </h3>
     </div>
@@ -392,7 +365,7 @@
     <div class="flex flex-col gap-2">
       <label
         for="name"
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+        class="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500"
         >Task name</label
       >
       <input
@@ -401,14 +374,14 @@
         type="text"
         required
         placeholder="Ship onboarding flow"
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
+        class="rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-white/40 focus:outline-none"
       />
     </div>
-    <div class="grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))]">
+    <div class="grid gap-3 md:grid-cols-[repeat(3,minmax(0,1fr))]">
       <div class="flex flex-col gap-2">
         <label
           for="due-date"
-          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          class="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500"
           >Due date</label
         >
         <input
@@ -421,13 +394,13 @@
           (v) => applyDateSelection(v)
         }
           type="date"
-          class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
+          class="rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-white focus:border-white/40 focus:outline-none"
         />
       </div>
       <div class="flex flex-col gap-2">
         <label
           for="due-hour"
-          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          class="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500"
           >Due hour</label
         >
         <input
@@ -441,21 +414,21 @@
               : "",
           (v) => applyHourSelection(v)
         }
-          class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none disabled:opacity-40"
+          class="rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-white focus:border-white/40 focus:outline-none disabled:opacity-30"
           disabled={!taskModalState.fields.due}
         />
       </div>
       <div class="flex flex-col gap-2">
         <label
           for="recurrence"
-          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          class="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500"
           >Repeats</label
         >
         <select
           id="recurrence"
           name="recurrence"
           bind:value={taskModalState.fields.recurrence}
-          class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
+          class="rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-white focus:border-white/40 focus:outline-none"
         >
           {#each recurrenceOptions as option}
             <option value={option.value}>{option.label}</option>
@@ -469,12 +442,12 @@
       <div class="flex items-center justify-between gap-3">
         <label
           for="content"
-          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          class="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-500"
           >Details</label
         >
         <label
           for={previewToggleId}
-          class="flex items-center gap-2 rounded-full border border-white/10 bg-[#0b0f1c] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400"
+          class="flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400"
         >
           Preview
           <span class="relative inline-flex items-center">
@@ -484,8 +457,8 @@
               bind:checked={taskModalState.isPreview}
               class="peer sr-only"
             />
-            <span class="block h-5 w-9 rounded-full border border-white/10 bg-white/10 transition peer-checked:border-white/60 peer-checked:bg-white/80"></span>
-            <span class="absolute left-0.5 top-0.5 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-4 peer-checked:bg-[#05060c]"></span>
+            <span class="block h-4 w-8 rounded-full border border-white/15 bg-white/10 transition peer-checked:border-white/50 peer-checked:bg-white/70"></span>
+            <span class="absolute left-0.5 top-0.5 block h-3 w-3 rounded-full bg-white transition peer-checked:translate-x-3.5 peer-checked:bg-[#05060c]"></span>
           </span>
         </label>
       </div>
@@ -494,14 +467,14 @@
         bind:value={taskModalState.fields.content}
         name="content"
         placeholder="Add context, links, or checklists..."
-        class="min-h-[30vh] h-[50vh] max-h-[70vh] rounded-2xl border border-white/10 bg-[#05070f] p-4 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none {taskModalState.isPreview ? 'overflow-y-scroll' : ''}"
+        class="min-h-[30vh] h-[45vh] max-h-[65vh] rounded-xl border border-white/15 bg-transparent p-3 text-sm text-white placeholder:text-slate-500 focus:border-white/40 focus:outline-none {taskModalState.isPreview ? 'overflow-y-scroll' : ''}"
       ></MDInput>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3">
       {#if taskModalState.mode == "update"}
         <button
           type="button"
-          class="text-sm font-semibold text-rose-300/80 hover:text-rose-100 cursor-pointer"
+          class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-300/80 hover:text-rose-100 cursor-pointer"
           onclick={() => deleteTask(taskModalState.fields.id)}
         >
           Delete task
@@ -511,13 +484,13 @@
         <button
           onclick={onTaskCancel}
           type="button"
-          class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
+          class="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200 cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
-          class="rounded-2xl bg-[var(--brand,#f1b24a)] px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+          class="rounded-xl bg-[var(--brand,#f1b24a)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c] transition hover:brightness-110 cursor-pointer"
         >
           {taskModalState.mode === "create" ? "Create" : "Save"}
         </button>
@@ -528,22 +501,22 @@
 
 <Modal bind:isOpen={taskDiscardModalOpen}>
   <div class="flex flex-col gap-4">
-    <div>
-      <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">Discard changes</p>
-      <h3 class="mt-2 text-2xl font-semibold text-white">Leave without saving?</h3>
-      <p class="mt-1 text-sm text-slate-400">You have unsaved task details. Discarding will remove those edits.</p>
+    <div class="space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.45em] text-slate-500">Discard changes</p>
+      <h3 class="text-lg font-semibold text-white">Leave without saving?</h3>
+      <p class="text-sm text-slate-400">You have unsaved task details. Discarding will remove those edits.</p>
     </div>
     <div class="ml-auto flex gap-3">
       <button
         type="button"
-        class="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 cursor-pointer"
+        class="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200 cursor-pointer"
         onclick={keepEditingTask}
       >
         Keep editing
       </button>
       <button
         type="button"
-        class="rounded-2xl bg-rose-400/80 px-5 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110 cursor-pointer"
+        class="rounded-xl bg-rose-400/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-[#05060c] transition hover:brightness-110 cursor-pointer"
         onclick={discardTaskChanges}
       >
         Discard changes
