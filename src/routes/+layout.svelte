@@ -2,8 +2,12 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import ToastHost from '$lib/components/ToastHost.svelte';
+	import { setContext } from 'svelte';
+	import { WORKSPACE_TIMEZONE_CONTEXT } from '$lib/context/workspace-timezone';
 	
-	let { children } = $props();
+	let { children, data } = $props();
+	const workspaceTimezone = data.workspaceTimezone ?? 'UTC';
+	setContext(WORKSPACE_TIMEZONE_CONTEXT, workspaceTimezone);
 </script>
 
 <svelte:head>

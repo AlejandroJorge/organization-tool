@@ -22,6 +22,7 @@ Simple organization tool for managing tasks and notes. Built with SvelteKit, Tai
 | Name | Required | Description |
 | --- | --- | --- |
 | `DATABASE_URL` | Yes | Absolute or relative path to the SQLite database file (e.g. `./local.db`). |
+| `WORKSPACE_TIMEZONE` | No (default `UTC`) | IANA timezone used for due date calculations and overdue checks (e.g. `America/New_York`). |
 
 > SQLite is the only supported database target at the moment. Ensure the directory containing the file is writable inside Docker or your host environment.
 

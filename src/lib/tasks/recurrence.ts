@@ -31,9 +31,13 @@ const advanceToNextWorkday = (value: dayjs.Dayjs) => {
   return cursor;
 };
 
-export const computeNextOccurrence = (currentDue: Date | null, recurrence: RecurrenceValue): Date => {
-  const now = dayjs.utc();
-  const template = dayjs.utc(currentDue ?? now);
+export const computeNextOccurrence = (
+  currentDue: Date | null,
+  recurrence: RecurrenceValue,
+  timezone: string
+): Date => {
+  const now = dayjs().tz(timezone);
+  const template = currentDue ? dayjs(currentDue).tz(timezone) : now;
   const base = ensureFutureBase(template, now);
   let next = base.add(1, "day");
   if (recurrence === "workday")
@@ -41,9 +45,13 @@ export const computeNextOccurrence = (currentDue: Date | null, recurrence: Recur
   return next.toDate();
 };
 
-export const computeTodayOrNextWorkday = (currentDue: Date | null, recurrence: RecurrenceValue): Date => {
-  const now = dayjs.utc();
-  const template = dayjs.utc(currentDue ?? now);
+export const computeTodayOrNextWorkday = (
+  currentDue: Date | null,
+  recurrence: RecurrenceValue,
+  timezone: string
+): Date => {
+  const now = dayjs().tz(timezone);
+  const template = currentDue ? dayjs(currentDue).tz(timezone) : now;
   let target = alignTime(now.clone(), template);
   if (recurrence === "workday")
     target = advanceToNextWorkday(target);

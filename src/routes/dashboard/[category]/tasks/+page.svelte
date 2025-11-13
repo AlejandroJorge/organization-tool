@@ -9,11 +9,14 @@
   import type { PageProps } from "./$types";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import { getContext } from "svelte";
+  import { WORKSPACE_TIMEZONE_CONTEXT } from "$lib/context/workspace-timezone";
 
   let { data }: PageProps = $props();
 
   const { tasks } = $derived(data);
   const pagination = $derived(data.pagination);
+  const workspaceTimezone = getContext<string>(WORKSPACE_TIMEZONE_CONTEXT) ?? "UTC";
   type Task = (typeof data.tasks)[number];
   const filters = $state({
     searchQuery: data.filters?.q ?? "",
@@ -163,7 +166,7 @@
     taskModalState.isPreview = false;
     taskModalState.fields.id = "";
     taskModalState.fields.name = "";
-    taskModalState.fields.due = dayjs.utc().startOf("day").toDate();
+    taskModalState.fields.due = dayjs().tz(workspaceTimezone).startOf("day").toDate();
     taskModalState.fields.status = false;
     taskModalState.fields.content = "";
     taskModalState.fields.recurrence = "";
@@ -223,41 +226,36 @@
       taskModalState.fields.due = null;
       return;
     }
-    const current = taskModalState.fields.due ? dayjs.utc(taskModalState.fields.due) : null;
-    const hour = current ? current.hour() : 0;
-    const minute = current ? current.minute() : 0;
-    taskModalState.fields.due = dayjs
-      .utc(value, "YYYY-MM-DD")
-      .hour(hour)
-      .minute(minute)
+    const existing = taskModalState.fields.due
+      ? dayjs(taskModalState.fields.due).tz(workspaceTimezone)
+      : dayjs.tz(`${value}T00:00`, workspaceTimezone);
+    const next = dayjs
+      .tz(`${value}T00:00`, workspaceTimezone)
+      .hour(existing.hour())
+      .minute(existing.minute())
       .second(0)
-      .millisecond(0)
-      .toDate();
+      .millisecond(0);
+    taskModalState.fields.due = next.toDate();
   }
 
   function applyHourSelection(value: string) {
     if (!taskModalState.fields.due) return;
     if (!value) {
-      taskModalState.fields.due = dayjs
-        .utc(taskModalState.fields.due)
-        .hour(0)
-        .minute(0)
-        .second(0)
-        .millisecond(0)
-        .toDate();
+      const reset = dayjs(taskModalState.fields.due).tz(workspaceTimezone).hour(0).minute(0).second(0).millisecond(0);
+      taskModalState.fields.due = reset.toDate();
       return;
     }
     const [hourPart, minutePart = "00"] = value.split(":");
     const hour = Number.parseInt(hourPart, 10);
     const minute = Number.parseInt(minutePart, 10) || 0;
     if (Number.isNaN(hour) || hour < 0 || hour > 23) return;
-    taskModalState.fields.due = dayjs
-      .utc(taskModalState.fields.due)
+    const updated = dayjs(taskModalState.fields.due)
+      .tz(workspaceTimezone)
       .hour(hour)
       .minute(minute)
       .second(0)
-      .millisecond(0)
-      .toDate();
+      .millisecond(0);
+    taskModalState.fields.due = updated.toDate();
   }
 </script>
 
@@ -415,13 +413,13 @@
         >
         <input
           id="due-date"
-          bind:value={
-            () =>
-              taskModalState.fields.due
-                ? dayjs.utc(taskModalState.fields.due).format("YYYY-MM-DD")
-                : "",
-            (v) => applyDateSelection(v)
-          }
+        bind:value={
+          () =>
+            taskModalState.fields.due
+              ? dayjs(taskModalState.fields.due).tz(workspaceTimezone).format("YYYY-MM-DD")
+              : "",
+          (v) => applyDateSelection(v)
+        }
           type="date"
           class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
         />
@@ -436,13 +434,13 @@
           id="due-hour"
           type="time"
           step="3600"
-          bind:value={
-            () =>
-              taskModalState.fields.due
-                ? dayjs.utc(taskModalState.fields.due).format("HH:00")
-                : "",
-            (v) => applyHourSelection(v)
-          }
+        bind:value={
+          () =>
+            taskModalState.fields.due
+              ? dayjs(taskModalState.fields.due).tz(workspaceTimezone).format("HH:mm")
+              : "",
+          (v) => applyHourSelection(v)
+        }
           class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none disabled:opacity-40"
           disabled={!taskModalState.fields.due}
         />

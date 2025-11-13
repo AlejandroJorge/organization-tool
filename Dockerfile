@@ -9,9 +9,11 @@ COPY . .
 ARG AUTH=false
 ARG APPLICATION_SECRET=
 ARG DATABASE_URL=/tmp/local.db
+ARG WORKSPACE_TIMEZONE=UTC
 ENV AUTH=${AUTH} \
     APPLICATION_SECRET=${APPLICATION_SECRET} \
-    DATABASE_URL=${DATABASE_URL}
+    DATABASE_URL=${DATABASE_URL} \
+    WORKSPACE_TIMEZONE=${WORKSPACE_TIMEZONE}
 RUN npm run build
 
 FROM node:20-bookworm-slim AS runner
@@ -19,7 +21,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
     AUTH=false \
     APPLICATION_SECRET= \
-    DATABASE_URL=/data/local.db
+    DATABASE_URL=/data/local.db \
+    WORKSPACE_TIMEZONE=UTC
 
 RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 svelte
 

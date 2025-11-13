@@ -3,16 +3,22 @@ import type { Actions, PageServerLoad } from "./$types";
 import { db } from "$lib/server/db";
 import { categories, tasks, notes } from "$lib/server/db/schema";
 import { and, asc, eq, or, isNull, like, lt, sql, count } from "drizzle-orm";
+import { appConfig } from "$lib/server/config";
+import dayjs from "$lib/dayjs";
 
 const TASKS_PER_PAGE = 10;
 
 type TaskFilters = { q?: string; onlyTodo?: boolean; interval?: number };
 
+const workspaceTimezone = appConfig.workspaceTimezone;
+
 const buildTaskWhereClause = ({ q, onlyTodo, interval }: TaskFilters) =>
   and(
     q ? like(tasks.name, `%${q}%`) : undefined,
     onlyTodo ? eq(tasks.status, false) : undefined,
-    interval ? or(lt(tasks.due, new Date(Date.now() + interval * 24 * 60 * 60 * 1000)), isNull(tasks.due)) : undefined
+    interval
+      ? or(lt(tasks.due, dayjs().tz(workspaceTimezone).add(interval, "day").toDate()), isNull(tasks.due))
+      : undefined
   );
 
 const loadTasks = async (

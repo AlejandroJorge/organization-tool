@@ -6,6 +6,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
     auth: {
       enabled: appConfig.authEnabled,
       isAuthenticated: locals.auth?.isAuthenticated ?? false
-    }
+    },
+    workspaceTimezone: appConfig.workspaceTimezone,
+    workspaceTimeSeed: new Date().toISOString()
   };
 };

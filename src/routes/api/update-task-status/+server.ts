@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import type { RequestHandler } from "./$types";
 import { json } from "@sveltejs/kit";
 import { computeNextOccurrence, normalizeRecurrence } from "$lib/tasks/recurrence";
+import { appConfig } from "$lib/server/config";
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
@@ -18,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const recurrence = normalizeRecurrence(taskRecord.recurrence);
 
     if (value && recurrence) {
-      const nextDue = computeNextOccurrence(taskRecord.due ?? null, recurrence);
+      const nextDue = computeNextOccurrence(taskRecord.due ?? null, recurrence, appConfig.workspaceTimezone);
       await db.update(tasks).set({ status: false, due: nextDue }).where(eq(tasks.id, id));
     } else {
       await db.update(tasks).set({ status: value }).where(eq(tasks.id, id));

@@ -5,6 +5,7 @@ import { categories, tasks } from "$lib/server/db/schema";
 import { and, asc, eq, sql, like, lt, or, isNull, count } from "drizzle-orm";
 import dayjs from "$lib/dayjs";
 import { normalizeRecurrence } from "$lib/tasks/recurrence";
+import { appConfig } from "$lib/server/config";
 
 const resolveCategory = async (categoryId: string) => {
   const [record] = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
@@ -16,12 +17,16 @@ const TASKS_PER_PAGE = 25;
 
 type TaskFilters = { q?: string; onlyTodo?: boolean; interval?: number };
 
+const workspaceTimezone = appConfig.workspaceTimezone;
+
 const buildTaskWhereClause = (categoryId: string, { q, onlyTodo, interval }: TaskFilters) =>
   and(
     eq(tasks.categoryId, categoryId),
     q ? like(tasks.name, `%${q}%`) : undefined,
     onlyTodo ? eq(tasks.status, false) : undefined,
-    interval ? or(lt(tasks.due, new Date(Date.now() + (interval * 24 * 60 * 60 * 1000))), isNull(tasks.due)) : undefined,
+    interval
+      ? or(lt(tasks.due, dayjs().tz(workspaceTimezone).add(interval, "day").toDate()), isNull(tasks.due))
+      : undefined,
   );
 
 const loadTasks = async (

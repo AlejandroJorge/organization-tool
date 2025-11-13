@@ -6,6 +6,8 @@
   import type { PageProps } from "./$types";
   import dayjs from "$lib/dayjs";
   import MDInput from "$lib/components/MDInput.svelte";
+  import { getContext } from "svelte";
+  import { WORKSPACE_TIMEZONE_CONTEXT } from "$lib/context/workspace-timezone";
 
   let { data }: PageProps = $props();
 
@@ -13,6 +15,7 @@
   const tasks = $derived(data.tasks);
   const categories = $derived(data.categories);
   const pagination = $derived(data.pagination);
+  const workspaceTimezone = getContext<string>(WORKSPACE_TIMEZONE_CONTEXT) ?? "UTC";
   const categoryLookup = $derived(
     Object.fromEntries(
       categories.map((category) => [category.id, category.name]),
@@ -31,7 +34,7 @@
   );
   const previewDue = $derived(
     previewTask?.due
-      ? dayjs.utc(previewTask.due).format("dddd D MMM YYYY")
+      ? dayjs(previewTask.due).tz(workspaceTimezone).format("dddd D MMM YYYY")
       : null,
   );
 

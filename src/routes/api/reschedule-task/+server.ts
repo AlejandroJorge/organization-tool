@@ -4,6 +4,7 @@ import { db } from "$lib/server/db";
 import { tasks } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 import { computeTodayOrNextWorkday, normalizeRecurrence } from "$lib/tasks/recurrence";
+import { appConfig } from "$lib/server/config";
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
@@ -19,7 +20,7 @@ export const POST: RequestHandler = async ({ request }) => {
     if (!recurrence)
       return json({ message: "Task is not recurring" }, { status: 400 });
 
-    const nextDue = computeTodayOrNextWorkday(taskRecord.due ?? null, recurrence);
+    const nextDue = computeTodayOrNextWorkday(taskRecord.due ?? null, recurrence, appConfig.workspaceTimezone);
     await db.update(tasks).set({ due: nextDue, status: false }).where(eq(tasks.id, id));
 
     return new Response(null, { status: 204 });

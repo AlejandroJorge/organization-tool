@@ -2,6 +2,7 @@
   import { enhance } from "$app/forms";
   import Modal from "$lib/components/Modal.svelte";
   import { createErrorToastEnhancer } from "$lib/utils/toast-errors";
+  import dayjs from "$lib/dayjs";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { LayoutProps } from "./$types";
 
@@ -9,15 +10,41 @@
   const { categories } = $derived(data);
   const activeCategoryId = $derived('category' in params ? params.category : null);
   const auth = $derived(data.auth);
+  const workspaceTimezone = $derived(data.workspaceTimezone ?? "UTC");
+  const workspaceTimeSeed = $derived(data.workspaceTimeSeed ?? null);
   let isMobileSidebarOpen = $state(false);
 
   let isCreateCategoryModalOpen = $state(false);
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
+  let workspaceClockTime = $state("");
+  let workspaceClockDate = $state("");
+  let workspaceClockActive = $state(false);
 
   const createEnhanceHandler = (onSuccess?: () => void): SubmitFunction =>
     createErrorToastEnhancer({ onSuccess });
+
+  $effect(() => {
+    if (!workspaceTimeSeed) {
+      workspaceClockActive = false;
+      return;
+    }
+
+    const seedMs = dayjs.utc(workspaceTimeSeed).valueOf();
+    const offset = seedMs - Date.now();
+    workspaceClockActive = true;
+
+    const tick = () => {
+      const current = dayjs(Date.now() + offset).tz(workspaceTimezone);
+      workspaceClockTime = current.format("HH:mm:ss");
+      workspaceClockDate = current.format("ddd, MMM D YYYY");
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  });
 </script>
 
 <div class="min-h-screen bg-[#05060c] text-slate-100">
@@ -117,6 +144,21 @@
           {/each}
         {/if}
       </nav>
+
+      {#if workspaceClockActive}
+        <div
+          class="mt-5 rounded-2xl border border-white/10 bg-[#0c101d] p-4 text-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.35)]"
+        >
+          <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500">
+            Workspace time
+          </p>
+          <p class="mt-1 text-2xl font-semibold text-white tracking-tight">{workspaceClockTime}</p>
+          <p class="text-xs text-slate-400">{workspaceClockDate}</p>
+          <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-slate-500">
+            {workspaceTimezone}
+          </p>
+        </div>
+      {/if}
 
       <div
         class="mt-5 flex flex-col gap-3 rounded-2xl border border-white/5 bg-[#080b14] p-4 shadow-[0_20px_60px_rgba(3,4,12,0.7)]"

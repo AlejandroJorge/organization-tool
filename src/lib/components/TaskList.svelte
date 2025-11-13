@@ -1,6 +1,8 @@
 <script lang="ts">
   import dayjs from "$lib/dayjs";
   import CheckToggle from "$lib/components/CheckToggle.svelte";
+  import { getContext } from "svelte";
+  import { WORKSPACE_TIMEZONE_CONTEXT } from "$lib/context/workspace-timezone";
 
   type Task = {
     id: string;
@@ -32,17 +34,19 @@
     onReschedule?: (task: Task) => void | Promise<void>;
   } = $props();
 
+  const workspaceTimezone = getContext<string>(WORKSPACE_TIMEZONE_CONTEXT) ?? "UTC";
+
   function hasDueTime(due: Task["due"]) {
     if (!due)
       return false;
-    const parsed = dayjs.utc(due);
+    const parsed = dayjs(due).tz(workspaceTimezone);
     return parsed.hour() !== 0 || parsed.minute() !== 0;
   }
 
   function formatDue(due: Task["due"]) {
     if (!due)
       return null;
-    const parsed = dayjs.utc(due);
+    const parsed = dayjs(due).tz(workspaceTimezone);
     const dateLabel = parsed.format("dddd D, MMM YYYY");
     return hasDueTime(due) ? `${dateLabel} · ${parsed.format("HH:mm")}` : dateLabel;
   }
@@ -50,7 +54,9 @@
   function isOverdue(task: Task) {
     if (!task.due || task.status)
       return false;
-    return dayjs.utc(task.due).isBefore(dayjs.utc());
+    const due = dayjs(task.due).tz(workspaceTimezone);
+    const now = dayjs().tz(workspaceTimezone);
+    return due.isBefore(now);
   }
 
   function isRecurring(task: Task) {
