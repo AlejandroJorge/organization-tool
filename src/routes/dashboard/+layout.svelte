@@ -2,7 +2,6 @@
   import { enhance } from "$app/forms";
   import Modal from "$lib/components/Modal.svelte";
   import { createErrorToastEnhancer } from "$lib/utils/toast-errors";
-  import dayjs from "$lib/dayjs";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { LayoutProps } from "./$types";
 
@@ -11,40 +10,16 @@
   const activeCategoryId = $derived('category' in params ? params.category : null);
   const auth = $derived(data.auth);
   const workspaceTimezone = $derived(data.workspaceTimezone ?? "UTC");
-  const workspaceTimeSeed = $derived(data.workspaceTimeSeed ?? null);
   let isMobileSidebarOpen = $state(false);
 
   let isCreateCategoryModalOpen = $state(false);
   let isDeleteCategoryModalOpen = $state(false);
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
-  let workspaceClockTime = $state("");
-  let workspaceClockDate = $state("");
-  let workspaceClockActive = $state(false);
 
   const createEnhanceHandler = (onSuccess?: () => void): SubmitFunction =>
     createErrorToastEnhancer({ onSuccess });
 
-  $effect(() => {
-    if (!workspaceTimeSeed) {
-      workspaceClockActive = false;
-      return;
-    }
-
-    const seedMs = dayjs.utc(workspaceTimeSeed).valueOf();
-    const offset = seedMs - Date.now();
-    workspaceClockActive = true;
-
-    const tick = () => {
-      const current = dayjs(Date.now() + offset).tz(workspaceTimezone);
-      workspaceClockTime = current.format("HH:mm:ss");
-      workspaceClockDate = current.format("ddd, MMM D YYYY");
-    };
-
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  });
 </script>
 
 <div class="min-h-screen bg-[#05060c] text-slate-100">
@@ -67,26 +42,28 @@
       }`}
       aria-label="Category navigation"
     >
-      <button
-        class="mb-4 flex h-9 w-9 cursor-pointer items-center justify-center self-end rounded-xl border border-white/10 text-base text-slate-300 transition hover:text-white lg:hidden"
-        type="button"
-        aria-label="Close sidebar"
-        onclick={() => {
-          isMobileSidebarOpen = false;
-        }}
-      >
-        ×
-      </button>
-      <div class="mb-5 space-y-1.5">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
-          Spaces
-        </p>
-        <div class="flex items-center justify-between">
-          <h1 class="text-xl font-semibold text-white tracking-tight">Organize</h1>
-          <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-medium text-slate-400">
-            {categories.length}
-          </span>
+      <div class="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
+            Spaces
+          </p>
+          <div class="mt-1 flex items-center gap-2">
+            <h1 class="text-xl font-semibold text-white tracking-tight">Organize</h1>
+            <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+              {categories.length}
+            </span>
+          </div>
         </div>
+        <button
+          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 text-base text-slate-300 transition hover:text-white lg:hidden"
+          type="button"
+          aria-label="Close sidebar"
+          onclick={() => {
+            isMobileSidebarOpen = false;
+          }}
+        >
+          ×
+        </button>
       </div>
 
       <nav class="flex-1 space-y-1.5 overflow-y-auto pr-1 text-sm">
@@ -145,38 +122,21 @@
         {/if}
       </nav>
 
-      {#if workspaceClockActive}
-        <div
-          class="mt-5 rounded-2xl border border-white/10 bg-[#0c101d] p-4 text-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.35)]"
-        >
-          <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500">
-            Workspace time
-          </p>
-          <p class="mt-1 text-2xl font-semibold text-white tracking-tight">{workspaceClockTime}</p>
-          <p class="text-xs text-slate-400">{workspaceClockDate}</p>
-          <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-slate-500">
-            {workspaceTimezone}
-          </p>
-        </div>
-      {/if}
-
       <div
-        class="mt-5 flex flex-col gap-3 rounded-2xl border border-white/5 bg-[#080b14] p-4 shadow-[0_20px_60px_rgba(3,4,12,0.7)]"
+        class="mt-5 rounded-2xl border border-white/10 bg-[#0c101d] p-4 text-slate-400 text-[11px] uppercase tracking-[0.3em]"
       >
-        <p class="text-[11px] uppercase tracking-[0.35em] text-slate-500">New category</p>
-        <p class="text-sm text-slate-400">
-          Spin up a fresh space for a project or team without leaving the flow.
-        </p>
-        <button
-          class="mt-1 inline-flex cursor-pointer items-center justify-center rounded-2xl bg-[var(--brand,#f1b24a)] px-4 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110"
-          type="button"
-          onclick={() => {
-            isCreateCategoryModalOpen = true;
-          }}
-        >
-          New Category
-        </button>
+        Timezone: <span class="text-white font-semibold tracking-[0.2em]">{workspaceTimezone}</span>
       </div>
+
+      <button
+        class="mt-5 inline-flex w-full cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-[var(--brand,#f1b24a)] px-4 py-2 text-sm font-semibold text-[#05060c] transition hover:brightness-110"
+        type="button"
+        onclick={() => {
+          isCreateCategoryModalOpen = true;
+        }}
+      >
+        New Category
+      </button>
       {#if auth?.enabled}
         <form method="POST" action="/logout" class="mt-3">
           <button
