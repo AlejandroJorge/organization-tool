@@ -300,7 +300,7 @@
         name="interval"
         bind:value={filters.intervalValue}
         onchange={reloadData}
-        class="min-w-[150px] rounded-xl border border-white/15 bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 focus:border-white/40"
+        class="min-w-[180px] rounded-xl border border-white/15 bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 focus:border-white/40"
       >
         <option value="">Any time</option>
         {#each intervalOptions as option}

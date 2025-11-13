@@ -96,69 +96,38 @@
     </p>
   </header>
 
-  <form
-    method="GET"
-    class="grid gap-3 rounded-2xl border border-white/5 bg-[#080b14] p-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.75fr)_minmax(0,0.75fr)]"
-  >
-    <label class="flex flex-col gap-2">
-      <span
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Search</span
-      >
+  <form method="GET" class="rounded-2xl border border-white/10 bg-[#06080f] p-4">
+    <div class="flex flex-wrap items-center gap-3">
       <input
         type="search"
         name="q"
         bind:value={filters.searchQuery}
         oninput={reloadData}
-        placeholder="Find tasks"
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-white/30 focus:outline-none"
+        placeholder="Search tasks"
+        class="w-full flex-1 rounded-xl border border-white/15 bg-transparent px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-white/40 focus:outline-none md:w-auto"
       />
-    </label>
-
-    <label class="flex flex-col gap-2">
-      <span
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Status</span
-      >
-      <span
-        class="flex items-center justify-between rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2 text-sm font-semibold text-slate-200"
-      >
-        Only open tasks
-        <span class="relative inline-flex items-center">
-          <input
-            type="checkbox"
-            name="onlyTodo"
-            bind:checked={filters.showOnlyTodo}
-            onchange={reloadData}
-            class="peer sr-only"
-          />
-          <span
-            class="block h-6 w-11 rounded-full bg-white/10 transition peer-checked:bg-white/80"
-          ></span>
-          <span
-            class="absolute left-1 top-1 block h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5 peer-checked:bg-[#05060c]"
-          ></span>
-        </span>
-      </span>
-    </label>
-
-    <label class="flex flex-col gap-2">
-      <span
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Due within</span
-      >
+      <label class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+        <input
+          type="checkbox"
+          name="onlyTodo"
+          bind:checked={filters.showOnlyTodo}
+          onchange={reloadData}
+          class="h-4 w-4 rounded border border-white/30 bg-transparent text-white focus:ring-0"
+        />
+        Only open
+      </label>
       <select
         name="interval"
         bind:value={filters.intervalValue}
         onchange={reloadData}
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-2.5 text-sm text-slate-100 focus:border-white/30 focus:outline-none"
+        class="min-w-[180px] rounded-xl border border-white/15 bg-transparent px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-200 focus:border-white/40"
       >
         <option value="">Any time</option>
         {#each intervalOptions as option}
           <option value={option.value}>{option.label}</option>
         {/each}
       </select>
-    </label>
+    </div>
   </form>
 
   <div class="flex-1 min-h-0 flex flex-col gap-4 overflow-hidden">
