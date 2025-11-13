@@ -101,6 +101,12 @@
           {@render children?.()}
         </h6>
       {/snippet}
+      {#snippet a(props)}
+        {@const { children, style, class: className, ...rest } = props}
+        <a {style} target="_blank" class="{className} heading" {...rest}>
+          {@render children?.()}
+        </a>
+      {/snippet}
       {#snippet p(props)}
         {@const { children, style, class: className, ...rest } = props}
         <p {style} class="{className} heading" {...rest}>
@@ -174,6 +180,10 @@
     line-height: 1.5;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
+  }
+  a {
+    font-weight: bold;
+    text-decoration: underline;
   }
   p {
     font-size: 1rem;
