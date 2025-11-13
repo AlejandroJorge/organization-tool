@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import { invalidateAll } from "$app/navigation";
   import Modal from "$lib/components/Modal.svelte";
   import MDInput from "$lib/components/MDInput.svelte";
   import TaskList from "$lib/components/TaskList.svelte";
   import dayjs from "$lib/dayjs";
+  import { fetchWithErrorToast, createErrorToastEnhancer } from "$lib/utils/toast-errors";
   import type { PageProps } from "./$types";
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
@@ -61,21 +63,35 @@
   );
 
   async function updateTaskStatus(id: string, value: boolean) {
-    await fetch("/api/update-task-status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, value }),
-    });
+    const response = await fetchWithErrorToast(
+      "/api/update-task-status",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, value }),
+      },
+      "Unable to update task"
+    );
+
+    if (!response)
+      return;
 
     invalidateAll();
   }
 
   async function deleteTask(id: string) {
-    await fetch("/api/delete-task", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
+    const response = await fetchWithErrorToast(
+      "/api/delete-task",
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      },
+      "Unable to delete task"
+    );
+
+    if (!response)
+      return;
 
     invalidateAll();
 
@@ -168,6 +184,13 @@
     taskModalState.isOpen = false;
     taskModalState.fields.content = taskInitialContent;
   }
+
+  const handleTaskFormResult = createErrorToastEnhancer({
+    onSuccess: () => {
+      taskModalState.isOpen = false;
+      taskDiscardModalOpen = false;
+    }
+  });
 
   function applyDateSelection(value: string) {
     if (!value) {
@@ -329,6 +352,7 @@
     method="POST"
     action={taskActions[taskModalState.mode]}
     class="flex w-full max-w-2xl flex-col gap-5"
+    use:enhance={handleTaskFormResult}
   >
     <input hidden type="text" name="id" value={taskModalState.fields.id} />
     <div>

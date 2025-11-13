@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import Modal from "$lib/components/Modal.svelte";
-  import { toast } from "$lib/components/toast-store";
+  import { createErrorToastEnhancer } from "$lib/utils/toast-errors";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { LayoutProps } from "./$types";
 
@@ -16,28 +16,8 @@
   let deleteCategoryId = $state("");
   let deleteCategoryName = $state("");
 
-  function createEnhanceHandler(onSuccess?: () => void): SubmitFunction {
-    return () => {
-      return async ({ result, update }) => {
-        if (result.type === "success") {
-          const message =
-            (result.data as { message?: string } | null)?.message ??
-            "Action completed";
-          toast.success(message);
-          onSuccess?.();
-        } else if (result.type === "failure") {
-          const message =
-            (result.data as { message?: string } | null)?.message ??
-            "Something went wrong";
-          toast.error(message);
-        } else if (result.type === "error") {
-          toast.error("Unexpected error. Please try again.");
-        }
-
-        await update();
-      };
-    };
-  }
+  const createEnhanceHandler = (onSuccess?: () => void): SubmitFunction =>
+    createErrorToastEnhancer({ onSuccess });
 </script>
 
 <div class="min-h-screen bg-[#05060c] text-slate-100">

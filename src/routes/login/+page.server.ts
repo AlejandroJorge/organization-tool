@@ -26,15 +26,20 @@ export const actions = {
     if (secret !== appConfig.applicationSecret)
       return fail(401, { message: "Invalid secret" });
 
-    const secure = url.protocol === "https:";
+    try {
+      const secure = url.protocol === "https:";
 
-    cookies.set(APP_SESSION_COOKIE, crypto.randomUUID(), {
-      path: "/",
-      httpOnly: true,
-      sameSite: "strict",
-      secure,
-      maxAge: 60 * 60 * 24 * 7
-    });
+      cookies.set(APP_SESSION_COOKIE, crypto.randomUUID(), {
+        path: "/",
+        httpOnly: true,
+        sameSite: "strict",
+        secure,
+        maxAge: 60 * 60 * 24 * 7
+      });
+    } catch (err) {
+      console.error("[auth] login", err);
+      return fail(500, { message: "Unable to complete login" });
+    }
 
     throw redirect(303, url.searchParams.get("redirectTo") ?? "/dashboard");
   }

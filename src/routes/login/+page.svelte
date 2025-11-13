@@ -1,14 +1,16 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { createErrorToastEnhancer } from "$lib/utils/toast-errors";
   import type { PageData } from "./$types";
 
   let { form }: PageData & { form?: { message?: string } } = $props();
+  const handleLoginSubmission = createErrorToastEnhancer();
 </script>
 
 <section class="min-h-screen bg-[#05060c] text-slate-100 flex items-center justify-center p-6">
   <form
     method="POST"
-    use:enhance
+    use:enhance={handleLoginSubmission}
     class="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-[#090b15] p-8 shadow-[0_35px_120px_rgba(4,6,19,0.8)]"
   >
     <header class="space-y-2">

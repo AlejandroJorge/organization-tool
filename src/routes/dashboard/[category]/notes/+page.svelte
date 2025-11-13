@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import { invalidateAll } from "$app/navigation";
   import MDInput from "$lib/components/MDInput.svelte";
   import Modal from "$lib/components/Modal.svelte";
+  import { fetchWithErrorToast, createErrorToastEnhancer } from "$lib/utils/toast-errors";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
@@ -44,11 +46,18 @@
   });
 
   async function deleteNote(id: string) {
-    await fetch("/api/delete-note", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
+    const response = await fetchWithErrorToast(
+      "/api/delete-note",
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      },
+      "Unable to delete note"
+    );
+
+    if (!response)
+      return;
 
     invalidateAll();
 
@@ -122,21 +131,23 @@
   }
 
   async function persistMove(movedNoteId: string, positionMovedFrom: number, positionMovedTo: number) {
-    try {
-      const response = await fetch("/api/reorder-notes", {
+    const response = await fetchWithErrorToast(
+      "/api/reorder-notes",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ movedNoteId, positionMovedFrom, positionMovedTo }),
-      });
+      },
+      "Unable to reorder notes"
+    );
 
-      if (!response.ok) throw new Error("Failed to save order");
-
-      lastPersistedOrder = applyMove(lastPersistedOrder, positionMovedFrom, positionMovedTo);
-      invalidateAll();
-    } catch (error) {
-      console.error(error);
+    if (!response) {
       orderedNotes = [...notes];
+      return;
     }
+
+    lastPersistedOrder = applyMove(lastPersistedOrder, positionMovedFrom, positionMovedTo);
+    invalidateAll();
   }
 
   function applyMove(order: string[], fromIndex: number, newIndex: number) {
@@ -188,6 +199,13 @@
     noteModalState.isOpen = false;
     noteModalState.fields.content = noteInitialContent;
   }
+
+  const handleNoteFormResult = createErrorToastEnhancer({
+    onSuccess: () => {
+      noteModalState.isOpen = false;
+      noteDiscardModalOpen = false;
+    }
+  });
 </script>
 
 <section class="flex min-h-0 flex-col space-y-6">
@@ -245,6 +263,7 @@
     method="POST"
     action={noteActions[noteModalState.mode]}
     class="flex w-full max-w-2xl flex-col gap-5"
+    use:enhance={handleNoteFormResult}
   >
     <input hidden type="text" name="id" value={noteModalState.fields.id} />
     <div>

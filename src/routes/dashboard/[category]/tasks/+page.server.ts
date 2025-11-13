@@ -84,7 +84,7 @@ export const actions = {
   createTask: async ({ request, params }) => {
     const data = await request.formData();
     const name = data.get("name") as string;
-    if (!name) return fail(400, { name, missing: true });
+    if (!name) return fail(400, { name, missing: true, message: "Task name is required" });
 
     const dueInput = ((data.get("due") as string) ?? "").trim();
     const due = dueInput ? dayjs.utc(dueInput).toDate() : null;
@@ -93,7 +93,12 @@ export const actions = {
 
     const { id: categoryId } = await resolveCategory(params.category);
 
-    await db.insert(tasks).values({ name, due, content, categoryId, status });
+    try {
+      await db.insert(tasks).values({ name, due, content, categoryId, status });
+    } catch (err) {
+      console.error("[tasks] createTask", err);
+      return fail(500, { message: "Unable to create task" });
+    }
 
     return { success: true };
   },
@@ -101,17 +106,22 @@ export const actions = {
     const data = await request.formData();
 
     const id = data.get("id") as string;
-    if (!id) return fail(400, { id, missing: true });
+    if (!id) return fail(400, { id, missing: true, message: "Task id is required" });
 
     const name = data.get("name") as string;
-    if (!name) return fail(400, { name, missing: true });
+    if (!name) return fail(400, { name, missing: true, message: "Task name is required" });
 
     const dueInput = ((data.get("due") as string) ?? "").trim();
     const due = dueInput ? dayjs.utc(dueInput).toDate() : null;
     const content = (data.get("content") as string) ?? null;
     const status = data.get("status") ? true : false;
 
-    await db.update(tasks).set({ name, due, content, status }).where(eq(tasks.id, id));
+    try {
+      await db.update(tasks).set({ name, due, content, status }).where(eq(tasks.id, id));
+    } catch (err) {
+      console.error("[tasks] updateTask", err);
+      return fail(500, { message: "Unable to update task" });
+    }
 
     return { success: true };
   }

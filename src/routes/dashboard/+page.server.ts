@@ -80,7 +80,12 @@ export const actions = {
     if (!name)
       return fail(400, { name, missing: true, message: "Category name is required" });
 
-    await db.insert(categories).values({ name });
+    try {
+      await db.insert(categories).values({ name });
+    } catch (err) {
+      console.error("[categories] createCategory", err);
+      return fail(500, { message: "Unable to create category" });
+    }
 
     return { success: true, message: "Category created" };
   },
@@ -90,15 +95,20 @@ export const actions = {
     if (!id)
       return fail(400, { id, missing: true, message: "Category id is required" });
 
-    const tasksQuery = await db.select().from(tasks).limit(1).where(eq(tasks.categoryId, id));
-    if (tasksQuery.length > 0)
-      return fail(400, { id, message: "Remove tasks from this category before deleting it" });
+    try {
+      const tasksQuery = await db.select().from(tasks).limit(1).where(eq(tasks.categoryId, id));
+      if (tasksQuery.length > 0)
+        return fail(400, { id, message: "Remove tasks from this category before deleting it" });
 
-    const notesQuery = await db.select().from(notes).limit(1).where(eq(notes.categoryId, id));
-    if (notesQuery.length > 0)
-      return fail(400, { id, message: "Remove notes from this category before deleting it" });
+      const notesQuery = await db.select().from(notes).limit(1).where(eq(notes.categoryId, id));
+      if (notesQuery.length > 0)
+        return fail(400, { id, message: "Remove notes from this category before deleting it" });
 
-    await db.delete(categories).where(eq(categories.id, id));
+      await db.delete(categories).where(eq(categories.id, id));
+    } catch (err) {
+      console.error("[categories] deleteCategory", err);
+      return fail(500, { message: "Unable to delete category" });
+    }
 
     return { success: true, message: "Category deleted" };
   }

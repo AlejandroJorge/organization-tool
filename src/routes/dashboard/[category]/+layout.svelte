@@ -2,7 +2,7 @@
   import { enhance } from "$app/forms";
   import { page } from "$app/state";
   import Modal from "$lib/components/Modal.svelte";
-  import { toast } from "$lib/components/toast-store";
+  import { createErrorToastEnhancer } from "$lib/utils/toast-errors";
   import type { SubmitFunction } from "@sveltejs/kit";
   import type { LayoutProps } from "./$types";
 
@@ -20,23 +20,12 @@
     renameValue = categoryName;
   });
 
-  const handleRenameResult: SubmitFunction = () => {
-    return async ({ result, update }) => {
-      if (result.type === "success") {
-        const payload = (result.data as { message?: string } | null) ?? {};
-        if (payload?.message)
-          toast.success(payload.message);
-        isRenameModalOpen = false;
-      } else if (result.type === "failure") {
-        const payload = (result.data as { message?: string } | null) ?? {};
-        toast.error(payload.message ?? "Unable to rename category");
-      } else if (result.type === "error") {
-        toast.error("Unexpected error. Please try again.");
-      }
-
-      await update();
-    };
-  };
+  const handleRenameResult: SubmitFunction = createErrorToastEnhancer({
+    onSuccess: () => {
+      isRenameModalOpen = false;
+      renameValue = categoryName;
+    }
+  });
 </script>
 
 <section class="space-y-6">

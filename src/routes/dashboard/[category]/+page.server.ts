@@ -42,7 +42,12 @@ export const actions = {
     if (duplicate && duplicate.id !== category.id)
       return fail(400, { message: "That name is already in use" });
 
-    await db.update(categories).set({ name: nameInput }).where(eq(categories.id, category.id));
+    try {
+      await db.update(categories).set({ name: nameInput }).where(eq(categories.id, category.id));
+    } catch (err) {
+      console.error("[categories] renameCategory", err);
+      return fail(500, { message: "Unable to rename category" });
+    }
 
     return { success: true, message: "Category renamed" };
   }

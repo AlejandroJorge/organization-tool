@@ -31,28 +31,33 @@ export const actions = {
   createNote: async ({ request, params }) => {
     const data = await request.formData();
     const name = data.get("name") as string;
-    if (!name) return fail(400, { name, missing: true });
+    if (!name) return fail(400, { name, missing: true, message: "Note title is required" });
 
     const content = data.get("content") as string;
-    if (!content) return fail(400, { content, missing: true });
+    if (!content) return fail(400, { content, missing: true, message: "Note content is required" });
 
     const { id: categoryId } = await resolveCategory(params.category);
 
-    const [lastNote] = await db
-      .select({ position: notes.position })
-      .from(notes)
-      .where(eq(notes.categoryId, categoryId))
-      .orderBy(desc(notes.position))
-      .limit(1);
+    try {
+      const [lastNote] = await db
+        .select({ position: notes.position })
+        .from(notes)
+        .where(eq(notes.categoryId, categoryId))
+        .orderBy(desc(notes.position))
+        .limit(1);
 
-    const nextPosition = (lastNote?.position ?? -1) + 1;
+      const nextPosition = (lastNote?.position ?? -1) + 1;
 
-    await db.insert(notes).values({ name, content, categoryId, position: nextPosition });
-    console.info("[notes] create", {
-      categoryId,
-      noteName: name,
-      assignedPosition: nextPosition,
-    });
+      await db.insert(notes).values({ name, content, categoryId, position: nextPosition });
+      console.info("[notes] create", {
+        categoryId,
+        noteName: name,
+        assignedPosition: nextPosition,
+      });
+    } catch (err) {
+      console.error("[notes] createNote", err);
+      return fail(500, { message: "Unable to create note" });
+    }
 
     return { success: true };
   },
@@ -60,14 +65,19 @@ export const actions = {
     const data = await request.formData();
 
     const id = data.get("id") as string;
-    if (!id) return fail(400, { id, missing: true });
+    if (!id) return fail(400, { id, missing: true, message: "Note id is required" });
 
     const name = data.get("name") as string;
-    if (!name) return fail(400, { name, missing: true });
+    if (!name) return fail(400, { name, missing: true, message: "Note title is required" });
 
     const content = data.get("content") as string;
 
-    await db.update(notes).set({ name, content }).where(eq(notes.id, id));
+    try {
+      await db.update(notes).set({ name, content }).where(eq(notes.id, id));
+    } catch (err) {
+      console.error("[notes] updateNote", err);
+      return fail(500, { message: "Unable to update note" });
+    }
 
     return { success: true };
   }
