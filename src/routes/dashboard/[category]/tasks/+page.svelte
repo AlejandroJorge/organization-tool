@@ -390,7 +390,7 @@
         {taskModalState.mode === "create" ? "New task" : "Update task"}
       </h3>
     </div>
-  <div class="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+  <div class="space-y-4">
     <div class="flex flex-col gap-2">
       <label
         for="name"
@@ -406,62 +406,64 @@
         class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-white/30 focus:outline-none"
       />
     </div>
-    <div class="flex flex-col gap-2">
-      <label
-        for="due-date"
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Due date</label
-      >
-      <input
-        id="due-date"
-        bind:value={
-          () =>
-            taskModalState.fields.due
-              ? dayjs.utc(taskModalState.fields.due).format("YYYY-MM-DD")
-              : "",
-          (v) => applyDateSelection(v)
-        }
-        type="date"
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
-      />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label
-        for="due-hour"
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Due hour</label
-      >
-      <input
-        id="due-hour"
-        type="time"
-        step="3600"
-        bind:value={
-          () =>
-            taskModalState.fields.due
-              ? dayjs.utc(taskModalState.fields.due).format("HH:00")
-              : "",
-          (v) => applyHourSelection(v)
-        }
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none disabled:opacity-40"
-        disabled={!taskModalState.fields.due}
-      />
-    </div>
-    <div class="flex flex-col gap-2">
-      <label
-        for="recurrence"
-        class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
-        >Repeats</label
-      >
-      <select
-        id="recurrence"
-        name="recurrence"
-        bind:value={taskModalState.fields.recurrence}
-        class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
-      >
-        {#each recurrenceOptions as option}
-          <option value={option.value}>{option.label}</option>
-        {/each}
-      </select>
+    <div class="grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))]">
+      <div class="flex flex-col gap-2">
+        <label
+          for="due-date"
+          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          >Due date</label
+        >
+        <input
+          id="due-date"
+          bind:value={
+            () =>
+              taskModalState.fields.due
+                ? dayjs.utc(taskModalState.fields.due).format("YYYY-MM-DD")
+                : "",
+            (v) => applyDateSelection(v)
+          }
+          type="date"
+          class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label
+          for="due-hour"
+          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          >Due hour</label
+        >
+        <input
+          id="due-hour"
+          type="time"
+          step="3600"
+          bind:value={
+            () =>
+              taskModalState.fields.due
+                ? dayjs.utc(taskModalState.fields.due).format("HH:00")
+                : "",
+            (v) => applyHourSelection(v)
+          }
+          class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none disabled:opacity-40"
+          disabled={!taskModalState.fields.due}
+        />
+      </div>
+      <div class="flex flex-col gap-2">
+        <label
+          for="recurrence"
+          class="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500"
+          >Repeats</label
+        >
+        <select
+          id="recurrence"
+          name="recurrence"
+          bind:value={taskModalState.fields.recurrence}
+          class="rounded-2xl border border-white/10 bg-[#05070f] px-4 py-3 text-sm text-white focus:border-white/30 focus:outline-none"
+        >
+          {#each recurrenceOptions as option}
+            <option value={option.value}>{option.label}</option>
+          {/each}
+        </select>
+      </div>
     </div>
   </div>
     <input type="hidden" name="due" value={serializedDueValue} />
