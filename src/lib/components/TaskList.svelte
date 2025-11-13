@@ -44,6 +44,12 @@
     return hasDueTime(due) ? `${dateLabel} · ${parsed.format("HH:mm")}` : dateLabel;
   }
 
+  function isOverdue(task: Task) {
+    if (!task.due || task.status)
+      return false;
+    return dayjs.utc(task.due).isBefore(dayjs.utc());
+  }
+
   function handleToggle(task: Task) {
     if (readOnly || !onToggle)
       return;
@@ -67,7 +73,13 @@
     </li>
   {:else}
     {#each tasks as task}
-      <li class="flex items-start gap-3 rounded-2xl border border-white/5 bg-[#0b0f1c] px-4 py-4">
+      <li
+        class={`flex items-start gap-3 rounded-2xl border px-4 py-4 transition-colors ${
+          isOverdue(task)
+            ? "border-rose-500/50 bg-[#1a0c12]"
+            : "border-white/5 bg-[#0b0f1c]"
+        }`}
+      >
         <div class="mt-1">
           <CheckToggle
             checked={task.status}
@@ -95,15 +107,23 @@
                   {categoryLookup[task.categoryId] ?? "View space"}
                 </a>
               {/if}
-              {#if formatDue(task.due)}
-                <span class="ml-auto text-xs font-semibold text-slate-300 whitespace-nowrap">
-                  {formatDue(task.due)}
-                </span>
-              {/if}
+              <div class="ml-auto flex flex-col items-end gap-1 text-xs font-semibold whitespace-nowrap">
+                {#if formatDue(task.due)}
+                  <span class="text-slate-300">{formatDue(task.due)}</span>
+                {/if}
+                {#if isOverdue(task)}
+                  <span class="text-rose-300">Past due</span>
+                {/if}
+              </div>
             </div>
             <p class="line-clamp-2 text-sm text-slate-400">
               {task.content ?? "No details captured yet."}
             </p>
+            {#if isOverdue(task)}
+              <p class="text-xs font-medium text-rose-200">
+                Wrap this up—its due date has already passed.
+              </p>
+            {/if}
           </button>
         </div>
       </li>
