@@ -4,9 +4,9 @@ import { appConfig } from "$lib/server/config";
 export const load: LayoutServerLoad = async ({ locals }) => {
   return {
     auth: {
-      enabled: appConfig.authEnabled,
       isAuthenticated: locals.auth?.isAuthenticated ?? false
     },
+    user: locals.user,
     workspaceTimezone: appConfig.workspaceTimezone
   };
 };

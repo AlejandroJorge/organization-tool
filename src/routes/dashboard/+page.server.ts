@@ -1,4 +1,4 @@
-import { fail } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { db } from "$lib/server/db";
 import { categories, tasks, notes } from "$lib/server/db/schema";
@@ -12,8 +12,9 @@ type TaskFilters = { q?: string; onlyTodo?: boolean; interval?: number };
 
 const workspaceTimezone = appConfig.workspaceTimezone;
 
-const buildTaskWhereClause = ({ q, onlyTodo, interval }: TaskFilters) =>
+const buildTaskWhereClause = (userId: string, { q, onlyTodo, interval }: TaskFilters) =>
   and(
+    eq(tasks.userId, userId),
     q ? like(tasks.name, `%${q}%`) : undefined,
     onlyTodo ? eq(tasks.status, false) : undefined,
     interval
@@ -22,10 +23,11 @@ const buildTaskWhereClause = ({ q, onlyTodo, interval }: TaskFilters) =>
   );
 
 const loadTasks = async (
+  userId: string,
   filters: TaskFilters,
   { limit, offset }: { limit: number; offset: number }
 ) => {
-  const whereClause = buildTaskWhereClause(filters);
+  const whereClause = buildTaskWhereClause(userId, filters);
 
   return db
     .select()
@@ -36,13 +38,17 @@ const loadTasks = async (
     .offset(offset);
 };
 
-const countTasks = async (filters: TaskFilters) => {
-  const whereClause = buildTaskWhereClause(filters);
+const countTasks = async (userId: string, filters: TaskFilters) => {
+  const whereClause = buildTaskWhereClause(userId, filters);
   const [{ value }] = await db.select({ value: count() }).from(tasks).where(whereClause);
   return value ?? 0;
 };
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
+  const userId = locals.user?.id;
+  if (!userId)
+    throw error(401, "Unauthorized");
+
   const q = url.searchParams.get("q") ?? "";
   const onlyTodo = url.searchParams.get("onlyTodo") === "true";
   const rawInterval = url.searchParams.get("interval");
@@ -55,8 +61,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
   const filters = { q, onlyTodo, interval };
   const [totalTasks, queryCategories] = await Promise.all([
-    countTasks(filters),
-    db.select().from(categories).orderBy(asc(categories.name))
+    countTasks(userId, filters),
+    db.select().from(categories).where(eq(categories.userId, userId)).orderBy(asc(categories.name))
   ]);
 
   const totalPages = Math.max(1, Math.ceil(totalTasks / TASKS_PER_PAGE));
@@ -64,7 +70,7 @@ export const load: PageServerLoad = async ({ url }) => {
     page = totalPages;
   const offset = (page - 1) * TASKS_PER_PAGE;
 
-  const queryTasks = await loadTasks(filters, { limit: TASKS_PER_PAGE, offset });
+  const queryTasks = await loadTasks(userId, filters, { limit: TASKS_PER_PAGE, offset });
 
   return {
     tasks: queryTasks,
@@ -80,14 +86,18 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions = {
-  createCategory: async ({ request }) => {
+  createCategory: async ({ request, locals }) => {
+    const userId = locals.user?.id;
+    if (!userId)
+      return fail(401, { message: "Unauthorized" });
+
     const data = await request.formData();
     const name = data.get("name") as string;
     if (!name)
       return fail(400, { name, missing: true, message: "Category name is required" });
 
     try {
-      await db.insert(categories).values({ name });
+      await db.insert(categories).values({ name, userId });
     } catch (err) {
       console.error("[categories] createCategory", err);
       return fail(500, { message: "Unable to create category" });
@@ -95,22 +105,42 @@ export const actions = {
 
     return { success: true, message: "Category created" };
   },
-  deleteCategory: async ({ request }) => {
+  deleteCategory: async ({ request, locals }) => {
+    const userId = locals.user?.id;
+    if (!userId)
+      return fail(401, { message: "Unauthorized" });
+
     const data = await request.formData();
     const id = data.get("id") as string;
     if (!id)
       return fail(400, { id, missing: true, message: "Category id is required" });
 
     try {
-      const tasksQuery = await db.select().from(tasks).limit(1).where(eq(tasks.categoryId, id));
+      const [categoryRecord] = await db
+        .select()
+        .from(categories)
+        .where(and(eq(categories.id, id), eq(categories.userId, userId)))
+        .limit(1);
+      if (!categoryRecord)
+        return fail(404, { message: "Category not found" });
+
+      const tasksQuery = await db
+        .select()
+        .from(tasks)
+        .limit(1)
+        .where(and(eq(tasks.categoryId, id), eq(tasks.userId, userId)));
       if (tasksQuery.length > 0)
         return fail(400, { id, message: "Remove tasks from this category before deleting it" });
 
-      const notesQuery = await db.select().from(notes).limit(1).where(eq(notes.categoryId, id));
+      const notesQuery = await db
+        .select()
+        .from(notes)
+        .limit(1)
+        .where(and(eq(notes.categoryId, id), eq(notes.userId, userId)));
       if (notesQuery.length > 0)
         return fail(400, { id, message: "Remove notes from this category before deleting it" });
 
-      await db.delete(categories).where(eq(categories.id, id));
+      await db.delete(categories).where(eq(categories.id, categoryRecord.id));
     } catch (err) {
       console.error("[categories] deleteCategory", err);
       return fail(500, { message: "Unable to delete category" });

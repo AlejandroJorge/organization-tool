@@ -2,17 +2,25 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { db } from "$lib/server/db";
 import { tasks } from "$lib/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { computeTodayOrNextWorkday, normalizeRecurrence } from "$lib/tasks/recurrence";
 import { appConfig } from "$lib/server/config";
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
   try {
+    const userId = locals.user?.id;
+    if (!userId)
+      return json({ message: "Unauthorized" }, { status: 401 });
+
     const { id }: { id?: string } = await request.json();
     if (!id)
       return json({ message: "Task id is required" }, { status: 400 });
 
-    const [taskRecord] = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
+    const [taskRecord] = await db
+      .select()
+      .from(tasks)
+      .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
+      .limit(1);
     if (!taskRecord)
       return json({ message: "Task not found" }, { status: 404 });
 
@@ -21,7 +29,10 @@ export const POST: RequestHandler = async ({ request }) => {
       return json({ message: "Task is not recurring" }, { status: 400 });
 
     const nextDue = computeTodayOrNextWorkday(taskRecord.due ?? null, recurrence, appConfig.workspaceTimezone);
-    await db.update(tasks).set({ due: nextDue, status: false }).where(eq(tasks.id, id));
+    await db
+      .update(tasks)
+      .set({ due: nextDue, status: false })
+      .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
 
     return new Response(null, { status: 204 });
   } catch (error) {

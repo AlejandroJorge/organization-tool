@@ -4,8 +4,12 @@ import { and, eq, gt, gte, lt, lte, sql } from "drizzle-orm";
 import type { RequestHandler } from "./$types";
 import { json } from "@sveltejs/kit";
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
   try {
+    const userId = locals.user?.id;
+    if (!userId)
+      return json({ message: "Unauthorized" }, { status: 401 });
+
     const {
       movedNoteId,
       positionMovedTo,
@@ -26,7 +30,10 @@ export const POST: RequestHandler = async ({ request }) => {
     if (positionMovedTo === positionMovedFrom)
       return new Response(null, { status: 204 });
 
-    const [originalNote] = await db.select().from(notes).where(eq(notes.id, movedNoteId));
+    const [originalNote] = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, movedNoteId), eq(notes.userId, userId)));
     if (!originalNote)
       return json({ message: "Note not found" }, { status: 404 });
 
@@ -38,6 +45,7 @@ export const POST: RequestHandler = async ({ request }) => {
         .set({ position: sql`${notes.position} - 1` })
         .where(
           and(
+            eq(notes.userId, userId),
             eq(notes.categoryId, categoryId),
             gt(notes.position, positionMovedFrom),
             lte(notes.position, positionMovedTo)
@@ -49,6 +57,7 @@ export const POST: RequestHandler = async ({ request }) => {
         .set({ position: sql`${notes.position} + 1` })
         .where(
           and(
+            eq(notes.userId, userId),
             eq(notes.categoryId, categoryId),
             gte(notes.position, positionMovedTo),
             lt(notes.position, positionMovedFrom)
@@ -56,7 +65,10 @@ export const POST: RequestHandler = async ({ request }) => {
         );
     }
 
-    await db.update(notes).set({ position: positionMovedTo }).where(eq(notes.id, movedNoteId));
+    await db
+      .update(notes)
+      .set({ position: positionMovedTo })
+      .where(and(eq(notes.id, movedNoteId), eq(notes.userId, userId)));
 
     return new Response(null, { status: 204 });
   } catch (error) {

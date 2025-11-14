@@ -1,28 +1,50 @@
 import { redirect } from "@sveltejs/kit";
 import type { Handle } from "@sveltejs/kit";
-import { appConfig, APP_SESSION_COOKIE } from "$lib/server/config";
+import { APP_SESSION_COOKIE, appConfig } from "$lib/server/config";
+import { parseSessionToken } from "$lib/server/auth/session";
+import { db } from "$lib/server/db";
+import { users } from "$lib/server/db/schema";
+import { eq } from "drizzle-orm";
 
-const isLoginRoute = (pathname: string) => pathname === "/login";
+const isPublicRoute = (pathname: string) => pathname === "/login" || pathname === "/register";
 const isAssetRequest = (pathname: string) => pathname.startsWith("/_app/") || pathname.startsWith("/favicon");
 
 export const handle: Handle = async ({ event, resolve }) => {
   const sessionToken = event.cookies.get(APP_SESSION_COOKIE);
-  const authenticated = Boolean(sessionToken);
+  let user: { id: string; username: string } | null = null;
 
+  if (sessionToken) {
+    const parsed = parseSessionToken(sessionToken, appConfig.sessionSecret);
+    if (parsed) {
+      const [record] = await db
+        .select({ id: users.id, username: users.username })
+        .from(users)
+        .where(eq(users.id, parsed.userId))
+        .limit(1);
+
+      if (record)
+        user = record;
+      else
+        event.cookies.delete(APP_SESSION_COOKIE, { path: "/" });
+    } else {
+      event.cookies.delete(APP_SESSION_COOKIE, { path: "/" });
+    }
+  }
+
+  event.locals.user = user;
   event.locals.auth = {
-    enabled: appConfig.authEnabled,
-    isAuthenticated: appConfig.authEnabled ? authenticated : true
+    isAuthenticated: Boolean(user)
   };
 
-  if (!appConfig.authEnabled || isAssetRequest(event.url.pathname))
+  if (isAssetRequest(event.url.pathname))
     return resolve(event);
 
-  if (!authenticated && !isLoginRoute(event.url.pathname)) {
+  if (!user && !isPublicRoute(event.url.pathname)) {
     const redirectTarget = encodeURIComponent(event.url.pathname + event.url.search);
     throw redirect(303, `/login${redirectTarget ? `?redirectTo=${redirectTarget}` : ""}`);
   }
 
-  if (authenticated && isLoginRoute(event.url.pathname))
+  if (user && isPublicRoute(event.url.pathname))
     throw redirect(303, "/dashboard");
 
   return resolve(event);

@@ -125,7 +125,7 @@
       >
         New Category
       </button>
-      {#if auth?.enabled}
+      {#if auth?.isAuthenticated}
         <form method="POST" action="/logout" class="mt-3">
           <button
             type="submit"

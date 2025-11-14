@@ -1,14 +1,14 @@
 import { error } from "@sveltejs/kit";
 import { db } from "$lib/server/db";
 import { categories } from "$lib/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { LayoutServerLoad } from "./$types";
 
-const resolveCategory = async (categoryId: string) => {
+const resolveCategory = async (userId: string, categoryId: string) => {
   const [categoryRecord] = await db
     .select()
     .from(categories)
-    .where(eq(categories.id, categoryId))
+    .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
     .limit(1);
 
   if (!categoryRecord)
@@ -17,8 +17,12 @@ const resolveCategory = async (categoryId: string) => {
   return categoryRecord;
 };
 
-export const load: LayoutServerLoad = async ({ params }) => {
-  const categoryRecord = await resolveCategory(params.category);
+export const load: LayoutServerLoad = async ({ params, locals }) => {
+  const userId = locals.user?.id;
+  if (!userId)
+    throw error(401, "Unauthorized");
+
+  const categoryRecord = await resolveCategory(userId, params.category);
 
   return {
     category: categoryRecord

@@ -7,8 +7,12 @@ import dayjs from "$lib/dayjs";
 import { normalizeRecurrence } from "$lib/tasks/recurrence";
 import { appConfig } from "$lib/server/config";
 
-const resolveCategory = async (categoryId: string) => {
-  const [record] = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
+const resolveCategory = async (userId: string, categoryId: string) => {
+  const [record] = await db
+    .select()
+    .from(categories)
+    .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
+    .limit(1);
   if (!record) error(404, "Category not found");
   return record;
 };
@@ -19,8 +23,9 @@ type TaskFilters = { q?: string; onlyTodo?: boolean; interval?: number };
 
 const workspaceTimezone = appConfig.workspaceTimezone;
 
-const buildTaskWhereClause = (categoryId: string, { q, onlyTodo, interval }: TaskFilters) =>
+const buildTaskWhereClause = (userId: string, categoryId: string, { q, onlyTodo, interval }: TaskFilters) =>
   and(
+    eq(tasks.userId, userId),
     eq(tasks.categoryId, categoryId),
     q ? like(tasks.name, `%${q}%`) : undefined,
     onlyTodo ? eq(tasks.status, false) : undefined,
@@ -30,11 +35,12 @@ const buildTaskWhereClause = (categoryId: string, { q, onlyTodo, interval }: Tas
   );
 
 const loadTasks = async (
+  userId: string,
   categoryId: string,
   filters: TaskFilters,
   { limit, offset }: { limit: number; offset: number }
 ) => {
-  const whereClause = buildTaskWhereClause(categoryId, filters);
+  const whereClause = buildTaskWhereClause(userId, categoryId, filters);
 
   return db
     .select()
@@ -45,14 +51,18 @@ const loadTasks = async (
     .offset(offset);
 };
 
-const countTasks = async (categoryId: string, filters: TaskFilters) => {
-  const whereClause = buildTaskWhereClause(categoryId, filters);
+const countTasks = async (userId: string, categoryId: string, filters: TaskFilters) => {
+  const whereClause = buildTaskWhereClause(userId, categoryId, filters);
   const [{ value }] = await db.select({ value: count() }).from(tasks).where(whereClause);
   return value ?? 0;
 };
 
-export const load: PageServerLoad = async ({ params, url }) => {
-  const { id } = await resolveCategory(params.category);
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+  const userId = locals.user?.id;
+  if (!userId)
+    throw error(401, "Unauthorized");
+
+  const { id } = await resolveCategory(userId, params.category);
   const q = url.searchParams.get("q") ?? ""
   const onlyTodo = url.searchParams.get("onlyTodo") === "true"
   const rawInterval = url.searchParams.get("interval")
@@ -66,13 +76,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
   let page = Number.isFinite(parsedPage) && parsedPage > 0 ? Math.floor(parsedPage) : 1
 
   const qParams = { q, onlyTodo, interval }
-  const totalTasks = await countTasks(id, qParams)
+  const totalTasks = await countTasks(userId, id, qParams)
   const totalPages = Math.max(1, Math.ceil(totalTasks / TASKS_PER_PAGE))
   if (page > totalPages)
     page = totalPages
 
   const offset = (page - 1) * TASKS_PER_PAGE
-  const queryTasks = await loadTasks(id, qParams, { limit: TASKS_PER_PAGE, offset });
+  const queryTasks = await loadTasks(userId, id, qParams, { limit: TASKS_PER_PAGE, offset });
 
   return {
     tasks: queryTasks,
@@ -87,7 +97,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 };
 
 export const actions = {
-  createTask: async ({ request, params }) => {
+  createTask: async ({ request, params, locals }) => {
+    const userId = locals.user?.id;
+    if (!userId)
+      return fail(401, { message: "Unauthorized" });
     const data = await request.formData();
     const name = data.get("name") as string;
     if (!name) return fail(400, { name, missing: true, message: "Task name is required" });
@@ -101,10 +114,10 @@ export const actions = {
     if (recurrence && !due)
       return fail(400, { message: "Recurring tasks require a due date" });
 
-    const { id: categoryId } = await resolveCategory(params.category);
+    const { id: categoryId } = await resolveCategory(userId, params.category);
 
     try {
-      await db.insert(tasks).values({ name, due, content, categoryId, status, recurrence });
+      await db.insert(tasks).values({ name, due, content, categoryId, status, recurrence, userId });
     } catch (err) {
       console.error("[tasks] createTask", err);
       return fail(500, { message: "Unable to create task" });
@@ -112,7 +125,10 @@ export const actions = {
 
     return { success: true };
   },
-  updateTask: async ({ request }) => {
+  updateTask: async ({ request, locals }) => {
+    const userId = locals.user?.id;
+    if (!userId)
+      return fail(401, { message: "Unauthorized" });
     const data = await request.formData();
 
     const id = data.get("id") as string;
@@ -130,8 +146,19 @@ export const actions = {
     if (recurrence && !due)
       return fail(400, { message: "Recurring tasks require a due date" });
 
+    const [existingTask] = await db
+      .select()
+      .from(tasks)
+      .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
+      .limit(1);
+    if (!existingTask)
+      return fail(404, { message: "Task not found" });
+
     try {
-      await db.update(tasks).set({ name, due, content, status, recurrence }).where(eq(tasks.id, id));
+      await db
+        .update(tasks)
+        .set({ name, due, content, status, recurrence })
+        .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
     } catch (err) {
       console.error("[tasks] updateTask", err);
       return fail(500, { message: "Unable to update task" });
