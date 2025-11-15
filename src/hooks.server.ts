@@ -2,7 +2,7 @@ import { redirect } from "@sveltejs/kit";
 import type { Handle } from "@sveltejs/kit";
 import { APP_SESSION_COOKIE, getRuntimeEnv } from "$lib/server/config";
 import { parseSessionToken } from "$lib/server/auth/session";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -16,7 +16,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   if (sessionToken) {
     const parsed = parseSessionToken(sessionToken, getRuntimeEnv().sessionSecret);
     if (parsed) {
-      const [record] = await db
+      const [record] = await getDb()
         .select({ id: users.id, username: users.username })
         .from(users)
         .where(eq(users.id, parsed.userId))

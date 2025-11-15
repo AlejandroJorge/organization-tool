@@ -1,4 +1,4 @@
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { notes } from "$lib/server/db/schema";
 import { and, eq, gt, gte, lt, lte, sql } from "drizzle-orm";
 import type { RequestHandler } from "./$types";
@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     if (positionMovedTo === positionMovedFrom)
       return new Response(null, { status: 204 });
 
-    const [originalNote] = await db
+    const [originalNote] = await getDb()
       .select()
       .from(notes)
       .where(and(eq(notes.id, movedNoteId), eq(notes.userId, userId)));
@@ -40,7 +40,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const categoryId = originalNote.categoryId;
 
     if (positionMovedTo > positionMovedFrom) {
-      await db
+      await getDb()
         .update(notes)
         .set({ position: sql`${notes.position} - 1` })
         .where(
@@ -52,7 +52,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
           )
         );
     } else {
-      await db
+      await getDb()
         .update(notes)
         .set({ position: sql`${notes.position} + 1` })
         .where(
@@ -65,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         );
     }
 
-    await db
+    await getDb()
       .update(notes)
       .set({ position: positionMovedTo })
       .where(and(eq(notes.id, movedNoteId), eq(notes.userId, userId)));

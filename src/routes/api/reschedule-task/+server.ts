@@ -1,6 +1,6 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { tasks } from "$lib/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import { computeTodayOrNextWorkday, normalizeRecurrence } from "$lib/tasks/recurrence";
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     if (!id)
       return json({ message: "Task id is required" }, { status: 400 });
 
-    const [taskRecord] = await db
+    const [taskRecord] = await getDb()
       .select()
       .from(tasks)
       .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
@@ -29,7 +29,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       return json({ message: "Task is not recurring" }, { status: 400 });
 
     const nextDue = computeTodayOrNextWorkday(taskRecord.due ?? null, recurrence, getRuntimeEnv().workspaceTimezone);
-    await db
+    await getDb()
       .update(tasks)
       .set({ due: nextDue, status: false })
       .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));

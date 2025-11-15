@@ -1,11 +1,11 @@
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { categories, notes } from "$lib/server/db/schema";
 import { and, asc, desc, eq, like } from "drizzle-orm";
 
 const resolveCategory = async (userId: string, categoryId: string) => {
-  const [record] = await db
+  const [record] = await getDb()
     .select()
     .from(categories)
     .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
@@ -21,7 +21,7 @@ const loadNotes = async (userId: string, categoryId: string, search?: string) =>
     search ? like(notes.name, `%${search}%`) : undefined
   );
 
-  return db
+  return getDb()
     .select()
     .from(notes)
     .where(whereClause)
@@ -60,7 +60,7 @@ export const actions = {
     const { id: categoryId } = await resolveCategory(userId, params.category);
 
     try {
-      const [lastNote] = await db
+      const [lastNote] = await getDb()
         .select({ position: notes.position })
         .from(notes)
         .where(and(eq(notes.categoryId, categoryId), eq(notes.userId, userId)))
@@ -69,7 +69,7 @@ export const actions = {
 
       const nextPosition = (lastNote?.position ?? -1) + 1;
 
-      await db.insert(notes).values({ name, content, categoryId, position: nextPosition, userId });
+      await getDb().insert(notes).values({ name, content, categoryId, position: nextPosition, userId });
       console.info("[notes] create", {
         categoryId,
         noteName: name,
@@ -97,7 +97,7 @@ export const actions = {
 
     const content = data.get("content") as string;
 
-    const [noteRecord] = await db
+    const [noteRecord] = await getDb()
       .select()
       .from(notes)
       .where(and(eq(notes.id, id), eq(notes.userId, userId)))
@@ -106,7 +106,7 @@ export const actions = {
       return fail(404, { message: "Note not found" });
 
     try {
-      await db
+      await getDb()
         .update(notes)
         .set({ name, content })
         .where(and(eq(notes.id, id), eq(notes.userId, userId)));

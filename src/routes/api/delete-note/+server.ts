@@ -1,4 +1,4 @@
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { and, eq } from "drizzle-orm";
 import type { RequestHandler } from "./$types";
 import { notes } from "$lib/server/db/schema";
@@ -15,7 +15,7 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
     if (!id)
       return json({ message: "Note id is required" }, { status: 400 });
 
-    const [noteRecord] = await db
+    const [noteRecord] = await getDb()
       .select()
       .from(notes)
       .where(and(eq(notes.id, id), eq(notes.userId, userId)))
@@ -23,7 +23,7 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
     if (!noteRecord)
       return json({ message: "Note not found" }, { status: 404 });
 
-    await db.delete(notes).where(eq(notes.id, noteRecord.id));
+    await getDb().delete(notes).where(eq(notes.id, noteRecord.id));
     return new Response(null, { status: 204 });
   } catch (error) {
     console.error("[api] delete-note", error);

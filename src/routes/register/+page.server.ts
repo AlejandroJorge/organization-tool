@@ -1,6 +1,6 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "$lib/server/auth/password";
@@ -32,7 +32,7 @@ export const actions = {
     if (typeof password !== "string" || password.length < MIN_PASSWORD_LENGTH)
       return fail(400, { message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
 
-    const existing = await db
+    const existing = await getDb()
       .select({ id: users.id })
       .from(users)
       .where(eq(users.username, username))
@@ -49,7 +49,7 @@ export const actions = {
       return fail(500, { message: "Unable to create user" });
     }
 
-    const [userRecord] = await db
+    const [userRecord] = await getDb()
       .select({ id: users.id, username: users.username })
       .from(users)
       .where(eq(users.username, username))

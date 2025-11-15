@@ -1,4 +1,4 @@
-import { db } from "$lib/server/db";
+import { getDb} from "$lib/server/db";
 import { categories } from "$lib/server/db/schema";
 import { asc, eq } from "drizzle-orm";
 import type { LayoutServerLoad } from "./$types";
@@ -8,7 +8,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
   if (!userId)
     return { categories: [] };
 
-  const queryCategories = await db
+  const queryCategories = await getDb()
     .select()
     .from(categories)
     .where(eq(categories.userId, userId))

@@ -1,6 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { categories, tasks } from "$lib/server/db/schema";
 import { and, asc, eq, sql, like, lt, or, isNull, count } from "drizzle-orm";
 import dayjs from "$lib/dayjs";
@@ -8,7 +8,7 @@ import { normalizeRecurrence } from "$lib/tasks/recurrence";
 import { getRuntimeEnv } from "$lib/server/config";
 
 const resolveCategory = async (userId: string, categoryId: string) => {
-  const [record] = await db
+  const [record] = await getDb()
     .select()
     .from(categories)
     .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
@@ -21,8 +21,6 @@ const TASKS_PER_PAGE = 25;
 
 type TaskFilters = { q?: string; onlyTodo?: boolean; interval?: number };
 
-const workspaceTimezone = getRuntimeEnv().workspaceTimezone;
-
 const buildTaskWhereClause = (userId: string, categoryId: string, { q, onlyTodo, interval }: TaskFilters) =>
   and(
     eq(tasks.userId, userId),
@@ -30,7 +28,7 @@ const buildTaskWhereClause = (userId: string, categoryId: string, { q, onlyTodo,
     q ? like(tasks.name, `%${q}%`) : undefined,
     onlyTodo ? eq(tasks.status, false) : undefined,
     interval
-      ? or(lt(tasks.due, dayjs().tz(workspaceTimezone).add(interval, "day").toDate()), isNull(tasks.due))
+      ? or(lt(tasks.due, dayjs().tz(getRuntimeEnv().workspaceTimezone).add(interval, "day").toDate()), isNull(tasks.due))
       : undefined,
   );
 
@@ -42,7 +40,7 @@ const loadTasks = async (
 ) => {
   const whereClause = buildTaskWhereClause(userId, categoryId, filters);
 
-  return db
+  return getDb()
     .select()
     .from(tasks)
     .where(whereClause)
@@ -53,7 +51,7 @@ const loadTasks = async (
 
 const countTasks = async (userId: string, categoryId: string, filters: TaskFilters) => {
   const whereClause = buildTaskWhereClause(userId, categoryId, filters);
-  const [{ value }] = await db.select({ value: count() }).from(tasks).where(whereClause);
+  const [{ value }] = await getDb().select({ value: count() }).from(tasks).where(whereClause);
   return value ?? 0;
 };
 
@@ -117,7 +115,7 @@ export const actions = {
     const { id: categoryId } = await resolveCategory(userId, params.category);
 
     try {
-      await db.insert(tasks).values({ name, due, content, categoryId, status, recurrence, userId });
+      await getDb().insert(tasks).values({ name, due, content, categoryId, status, recurrence, userId });
     } catch (err) {
       console.error("[tasks] createTask", err);
       return fail(500, { message: "Unable to create task" });
@@ -146,7 +144,7 @@ export const actions = {
     if (recurrence && !due)
       return fail(400, { message: "Recurring tasks require a due date" });
 
-    const [existingTask] = await db
+    const [existingTask] = await getDb()
       .select()
       .from(tasks)
       .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
@@ -155,7 +153,7 @@ export const actions = {
       return fail(404, { message: "Task not found" });
 
     try {
-      await db
+      await getDb()
         .update(tasks)
         .set({ name, due, content, status, recurrence })
         .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));

@@ -1,6 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { categories, tasks, notes } from "$lib/server/db/schema";
 import { and, asc, eq, or, isNull, like, lt, sql, count } from "drizzle-orm";
 import { getRuntimeEnv } from "$lib/server/config";
@@ -10,15 +10,13 @@ const TASKS_PER_PAGE = 10;
 
 type TaskFilters = { q?: string; onlyTodo?: boolean; interval?: number };
 
-const workspaceTimezone = getRuntimeEnv().workspaceTimezone;
-
 const buildTaskWhereClause = (userId: string, { q, onlyTodo, interval }: TaskFilters) =>
   and(
     eq(tasks.userId, userId),
     q ? like(tasks.name, `%${q}%`) : undefined,
     onlyTodo ? eq(tasks.status, false) : undefined,
     interval
-      ? or(lt(tasks.due, dayjs().tz(workspaceTimezone).add(interval, "day").toDate()), isNull(tasks.due))
+      ? or(lt(tasks.due, dayjs().tz(getRuntimeEnv().workspaceTimezone).add(interval, "day").toDate()), isNull(tasks.due))
       : undefined
   );
 
@@ -29,7 +27,7 @@ const loadTasks = async (
 ) => {
   const whereClause = buildTaskWhereClause(userId, filters);
 
-  return db
+  return getDb()
     .select()
     .from(tasks)
     .where(whereClause)
@@ -40,7 +38,7 @@ const loadTasks = async (
 
 const countTasks = async (userId: string, filters: TaskFilters) => {
   const whereClause = buildTaskWhereClause(userId, filters);
-  const [{ value }] = await db.select({ value: count() }).from(tasks).where(whereClause);
+  const [{ value }] = await getDb().select({ value: count() }).from(tasks).where(whereClause);
   return value ?? 0;
 };
 
@@ -62,7 +60,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
   const filters = { q, onlyTodo, interval };
   const [totalTasks, queryCategories] = await Promise.all([
     countTasks(userId, filters),
-    db.select().from(categories).where(eq(categories.userId, userId)).orderBy(asc(categories.name))
+    getDb().select().from(categories).where(eq(categories.userId, userId)).orderBy(asc(categories.name))
   ]);
 
   const totalPages = Math.max(1, Math.ceil(totalTasks / TASKS_PER_PAGE));
@@ -97,7 +95,7 @@ export const actions = {
       return fail(400, { name, missing: true, message: "Category name is required" });
 
     try {
-      await db.insert(categories).values({ name, userId });
+      await getDb().insert(categories).values({ name, userId });
     } catch (err) {
       console.error("[categories] createCategory", err);
       return fail(500, { message: "Unable to create category" });
@@ -116,7 +114,7 @@ export const actions = {
       return fail(400, { id, missing: true, message: "Category id is required" });
 
     try {
-      const [categoryRecord] = await db
+      const [categoryRecord] = await getDb()
         .select()
         .from(categories)
         .where(and(eq(categories.id, id), eq(categories.userId, userId)))
@@ -124,7 +122,7 @@ export const actions = {
       if (!categoryRecord)
         return fail(404, { message: "Category not found" });
 
-      const tasksQuery = await db
+      const tasksQuery = await getDb()
         .select()
         .from(tasks)
         .limit(1)
@@ -132,7 +130,7 @@ export const actions = {
       if (tasksQuery.length > 0)
         return fail(400, { id, message: "Remove tasks from this category before deleting it" });
 
-      const notesQuery = await db
+      const notesQuery = await getDb()
         .select()
         .from(notes)
         .limit(1)
@@ -140,7 +138,7 @@ export const actions = {
       if (notesQuery.length > 0)
         return fail(400, { id, message: "Remove notes from this category before deleting it" });
 
-      await db.delete(categories).where(eq(categories.id, categoryRecord.id));
+      await getDb().delete(categories).where(eq(categories.id, categoryRecord.id));
     } catch (err) {
       console.error("[categories] deleteCategory", err);
       return fail(500, { message: "Unable to delete category" });

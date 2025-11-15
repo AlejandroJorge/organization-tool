@@ -1,7 +1,6 @@
 import { migrate } from "drizzle-orm/better-sqlite3/migrator"
 import Database from "better-sqlite3"
 import { drizzle } from "drizzle-orm/better-sqlite3"
-import config from "../drizzle.config.ts"
 
 const sqlite = new Database(process.env.DATABASE_URL)
 const db = drizzle(sqlite)

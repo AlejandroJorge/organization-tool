@@ -1,11 +1,11 @@
 import { redirect, fail, error } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { categories } from "$lib/server/db/schema";
 import { and, eq } from "drizzle-orm";
 
 const resolveCategory = async (userId: string, categoryId: string) => {
-  const [record] = await db
+  const [record] = await getDb()
     .select()
     .from(categories)
     .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
@@ -42,7 +42,7 @@ export const actions = {
     if (nameInput === category.name)
       return { success: true, message: "Category name updated" };
 
-    const [duplicate] = await db
+    const [duplicate] = await getDb()
       .select()
       .from(categories)
       .where(and(eq(categories.name, nameInput), eq(categories.userId, userId)))
@@ -52,7 +52,7 @@ export const actions = {
       return fail(400, { message: "That name is already in use" });
 
     try {
-      await db.update(categories).set({ name: nameInput }).where(eq(categories.id, category.id));
+      await getDb().update(categories).set({ name: nameInput }).where(eq(categories.id, category.id));
     } catch (err) {
       console.error("[categories] renameCategory", err);
       return fail(500, { message: "Unable to rename category" });

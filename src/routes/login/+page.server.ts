@@ -1,7 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { APP_SESSION_COOKIE, getRuntimeEnv } from "$lib/server/config";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { users } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 import { verifyPassword } from "$lib/server/auth/password";
@@ -26,7 +26,7 @@ export const actions = {
     if (!username || typeof password !== "string" || password.length === 0)
       return fail(400, { message: "Username and password are required" });
 
-    const [userRecord] = await db
+    const [userRecord] = await getDb()
       .select()
       .from(users)
       .where(eq(users.username, username))

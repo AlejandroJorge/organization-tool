@@ -1,4 +1,4 @@
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { tasks } from "$lib/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { RequestHandler } from "./$types";
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     if (!id || typeof value !== "boolean")
       return json({ message: "Invalid payload" }, { status: 400 });
 
-    const [taskRecord] = await db
+    const [taskRecord] = await getDb()
       .select()
       .from(tasks)
       .where(and(eq(tasks.id, id), eq(tasks.userId, userId)))
@@ -28,12 +28,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     if (value && recurrence) {
       const nextDue = computeNextOccurrence(taskRecord.due ?? null, recurrence, getRuntimeEnv().workspaceTimezone);
-      await db
+      await getDb()
         .update(tasks)
         .set({ status: false, due: nextDue })
         .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
     } else {
-      await db
+      await getDb()
         .update(tasks)
         .set({ status: value })
         .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));

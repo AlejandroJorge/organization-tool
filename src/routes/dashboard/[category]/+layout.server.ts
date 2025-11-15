@@ -1,11 +1,11 @@
 import { error } from "@sveltejs/kit";
-import { db } from "$lib/server/db";
+import { getDb } from "$lib/server/db";
 import { categories } from "$lib/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import type { LayoutServerLoad } from "./$types";
 
 const resolveCategory = async (userId: string, categoryId: string) => {
-  const [categoryRecord] = await db
+  const [categoryRecord] = await getDb()
     .select()
     .from(categories)
     .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
