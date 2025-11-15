@@ -10,7 +10,7 @@ services:
       - "traefik.http.routers.organization.tls.certresolver=le"
       - "traefik.http.services.organization.loadbalancer.server.port=3000"
     volumes:
-      - ${DATA_DIR}:/data/local.db
+      - ${DATA_DIR}:/data
     environment:
       - NODE_ENV=production
       - DATABASE_URL=/data/local.db
