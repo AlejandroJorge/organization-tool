@@ -1,7 +1,7 @@
 services:
   app:
-    image: organization:latest
-    container_name: organization
+    image: organization-tool:latest
+    container_name: organization-tool
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
